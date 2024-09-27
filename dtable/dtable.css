@@ -1,0 +1,33 @@
+﻿/************************************************/	
+/*	Documento CSS								*/
+/*	Autor: Fábio Fernandes Bezerra				*/
+/************************************************/
+@charset "utf-8";
+
+.dtable-fixed-header{
+    width: 800px;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.dtable-fixed-header tbody{
+  display:block;
+  width: 100%;
+  overflow: auto;
+  height: 600px;
+}
+
+.dtable-fixed-header thead tr {
+   display: block;
+}
+
+.dtable-fixed-header thead {
+  background: black;
+  color:#fff;
+}
+
+.dtable-fixed-header th, .dtable-fixed-header td {
+  padding: 5px;
+  text-align: left;
+  width: 600px;
+}

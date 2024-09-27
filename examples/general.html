@@ -1,0 +1,531 @@
+﻿<html>
+
+<head>
+	<title>Teste de biblioteca geral</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+	<style>
+		div.test {
+			padding: 8px;
+			border: 1px silver solid;
+			margin: 8px;
+			border-radius: 6px;
+			box-shadow: 0px 2px 5px #888;
+		}
+
+		div.test h3 {
+			font-size: 14px;
+			font-family: monospace;
+			color: #2196f3;
+		}
+	</style>
+
+
+	<link rel="stylesheet" href="../general/general.css">
+	<!-- <link rel="stylesheet" href="../dists/general.min.css"> -->
+	<link rel="stylesheet" href="../dists/intellisense.min.css">
+	<!-- <script src="../dists/general.min.js"></script> -->
+	<script src="../general/general.js"></script>
+	<script src="../dists/intellisense.min.js"></script>
+
+
+	<script>
+
+		function opm() {
+			openPopupMenu("Item1,#abrir:Item2,Item3,-,Item5", 'meuMenu').then(item => alert(item));
+		}
+
+		//-- Criar Popup
+		function openPopupMenu(items, position) {
+
+			var menu = document.createElement('div');
+			menu.className = "popup-menu";
+
+			var ul = document.createElement('ul');
+			ul.className = "popup-dropdown slipDown";
+			menu.appendChild(ul);
+
+			if (typeof items == "string") items = items.split(",");
+
+			for (let item of items) {
+				if (typeof item != "string") continue;
+
+				let li = document.createElement('li');
+
+				if (item == "-") {
+					li.innerHTML = "<hr>";
+				} else {
+					let item_id = null;
+					item = item.replace(/^\s*(?:\#([^:]+):)?(.*)\s*$/i, (m0, m1, m2) => {
+						item_id = m1;
+						return m2;
+					});
+
+					item_id ??= "item" + ul.children.length;
+
+					li.innerHTML = `<a id="${item_id}" href="javascript:void(0);">${item}</a>`;
+				}
+				ul.appendChild(li);
+			}
+
+
+			if (typeof position == "string") position = document.getElementById(position);
+			if (!position) position = { x: screen.width / 2, y: screen.height / 2 };
+			if (position instanceof Element) {
+				let elem = position, p = { x: 0, y: 0 };
+				while (elem) {
+					p.x += elem.offsetLeft;
+					p.y += elem.offsetTop;
+					elem = elem.offsetParent;
+				}
+
+				if (position.tagName = 'BUTTON') p.y += position.offsetHeight;
+
+				position = p;
+			}
+
+			menu.style.left = position.x + 'px';
+			menu.style.top = position.y + 'px';
+
+			document.body.appendChild(menu);
+
+			//rect = menu.getBoundingClientRect();
+			//if (rect.right ></=> (window.innerWidth || document.documentElement.clientWidth)) {
+			//}
+			//rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+
+
+			return new Promise((resolve, reject) => {
+				var keyDownHandler = (e) => {
+					if (e.keyCode == 27) {
+						e.preventDefault();
+						e.stopPropagation();
+						menu.close();
+						reject();
+					}
+				};
+
+				var mouseDownHandler = (e) => {
+					menu.close();
+					reject();
+				};
+
+				menu.close = () => {
+					for (var i = 0; i < top.window.parent.frames.length; i++) top.window.parent.frames[i].document.removeEventListener('keydown', keyDownHandler);
+					document.removeEventListener('keydown', keyDownHandler);
+					document.removeEventListener("mousedown", mouseDownHandler);
+					document.removeEventListener("focusout", mouseDownHandler);
+
+					menu.remove();
+				};
+
+				let items = menu.querySelectorAll('a');
+				for (let a of items) {
+					a.addEventListener('mousedown', (e) => {
+						e.preventDefault();
+
+						menu.close();
+						resolve(e.currentTarget.id);
+					});
+				}
+
+				for (var i = 0; i < top.window.parent.frames.length; i++) top.window.parent.frames[i].document.addEventListener('keydown', keyDownHandler);
+				document.addEventListener('keydown', keyDownHandler);
+				document.addEventListener("mousedown", mouseDownHandler);
+				document.addEventListener("focusout", mouseDownHandler);
+
+				ul.style.display = 'block';
+
+			});
+
+		}
+
+
+		$(document).ready(function () {
+
+			$('#btnSCB').click(function (e) {
+				setClipboard('texto', '#btnSCB');
+			});
+
+			$('#btnWM').click(async function (e) {
+				var delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+				//waitMessage("Processando **tarefa**...");
+
+				/*
+				var processo = "535281234562020";
+				var servico = "019";
+				var fistel = "12345678909";
+				waitMessage(`@@<<Incluindo Controle:>>\nProcesso: **${processo}**\nServiço: **${servico}**\nFistel: **${fistel}**@@`, {mode: "compact", tag: "CPAG"});
+				await delay(3000);
+				*/
+
+				/*
+				waitMessage("Concluindo lançamento...");
+				await delay(3000);
+				*/
+				waitMessage(`Calculando 30%...\n%%30%%`, { mode: "compact", loader: false, tag: "![](class://menu-favorite-icon spinning)" });
+
+				/*
+				for (let i = 0; i <= 100; i++) {
+					waitMessage(`Calculando ${i}%...\n%%${i}%%`, {mode: "compact", loader: false, tag: "![](class://menu-favorite-icon spinning)"});
+					await delay(100);
+				}
+	
+				waitMessage(null);
+				*/
+			});
+
+			$('#btnPM').click(function (e) {
+				//popupMessage("**Mensagem Popup Teste**\nEssa é uma mensagem de teste", "popup");
+
+				let msg = `@@TABELA de CLIENTES
+			|cod|nome|idade|
+			|---|----|:---:|
+			|1|Fulano|22|
+			|2|Beltrano|32|
+			|3|Ciclano|16|
+			
+			Total de Clientes: 3@@`;
+				popupMessage(msg, "popup");
+			});
+
+			$('#btnIM').click(function (e) {
+				infoMessage("Mensagem de informação teste");
+			});
+
+			$('#btnEM').click(function (e) {
+				errorMessage("Mensagem de erro de teste");
+			});
+
+			$('#btnCM').click(async function (e) {
+				var ok = await confirmMessage("Esse é um teste de biblioteca.\n---\nDeseja continuar?", "PERGUNTA", "[Não Confirma:cancel][Confirma:confirm] alwaysResolve");
+				alert(ok);
+			});
+
+			$('#btnPCM').click(async function (e) {
+				var delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+				var dlg = openProcessDlg("Processamento");
+				dlg.start("Consultando");
+
+				await delay(2000);
+
+				dlg.success("Consulta concluída");
+
+				dlg.start("Carregando parâmetros");
+				await delay(2000);
+				dlg.warning("Usando parâmetros padrão");
+
+
+				dlg.start("Calculando");
+				await delay(2000);
+				dlg.fail("Falha de cálculo");
+				await delay(2000);
+
+				dlg.finish("Concluído com **sucesso**");
+
+
+			});
+
+			$('#btnForm').click(async function (e) {
+				var campos = [];
+
+				let icon_search = '<span><svg viewBox="0 0 24 24" style="width:24px;height:24px;"><path fill="currentColor" d="M15.009 13.805h-.636l-.22-.219a5.184 5.184 0 0 0 1.256-3.386 5.207 5.207 0 1 0-5.207 5.208 5.183 5.183 0 0 0 3.385-1.255l.221.22v.635l4.004 3.999 1.194-1.195-3.997-4.007zm-4.808 0a3.605 3.605 0 1 1 0-7.21 3.605 3.605 0 0 1 0 7.21z"></path></svg></span>';
+				let icon_down = '<span><svg viewBox="0 0 19 20" style="width:12px;height:12px;"><path fill="currentColor" d="m3.8 6.7 5.7 5.7 5.7-5.7 1.6 1.6-7.3 7.2-7.3-7.2 1.6-1.6z"></path></svg></span>';
+
+				campos.push({
+					id: 'nome',
+					label: 'Nome',
+					type: 'static',
+					value: '',
+					dropdown: {
+						button: true,
+						source: async function () {
+							var delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+							await delay(3000);
+
+							let list = [{ name: 'Item1' }, { name: 'Item2' }, { name: 'Item3' }, { name: 'Item4' }, { name: 'Item5' }, { name: 'Item6' }, { name: 'Item7' }, { name: 'Item8' }, { name: 'Item9' }, { name: 'Item10' }];
+							let ts = function () { return this.name };
+							list.map(item => item.toString = ts);
+
+							return list;//"Item1,Item2,Item3,Item4,Item5,Item6,Item7,Item8,Item9,Item10";
+						},
+						onselect: e => {
+							e.inputs.nome.text = e.text;
+						},
+						cache: true,
+						max: 7
+					}
+				});
+
+				// campos.push({id: 'search', label: 'Pesquisar', type: 'text', icons: [{icon: icon_search, title: 'Pesquisar conteúdo', callback: e => {
+				// 	alert('Pesquisar ' + e.inputs.search.value + '...');
+				// }}]});
+
+				// campos.push({nest: true, 
+				// 			 label: "Nome", 
+				// 			 dropdown: {
+				// 				 source: async function() {
+				// 					var delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+				// 					await delay(3000);
+
+				// 					let list = [{name: 'Item1'},
+				// 								{name: 'Item2'},
+				// 								{name: 'Item3'},
+				// 								{name: 'Item4'},
+				// 								{name: 'Item5'},
+				// 								{name: 'Item6'},
+				// 								{name: 'Item7'},
+				// 								{name: 'Item8'},
+				// 								{name: 'Item9'},
+				// 								{name: 'Item10'}];
+
+				// 					let ts = function() {return this.name};
+
+				// 					list.map(item => item.toString = ts);
+
+				// 				 	return list;//"Item1,Item2,Item3,Item4,Item5,Item6,Item7,Item8,Item9,Item10";
+				// 				 },
+				// 				//  source: {url: 'https://mysafeinfo.com/api/data?list=englishmonarchs&format=json', key: 'Name'},
+				// 				 cache: true,
+				// 				 max: 7},
+
+				// 			 fields: [
+				// 				{id: "nome", type: "text", placeholder: 'SEI'}, 
+				// 				{id: "compl", type: "static", width: "200%", value: "ATIVO"},
+				// 				{type: "button", caption: icon_down, callback: e => {
+				// 					e.openDropdown().then(e => {
+				// 						e.inputs.nome.value = e.text;
+				// 					 	e.inputs.compl.text = e.text;
+				// 					});
+				// 				}}]});
+				campos.push({ id: "senha", type: "password", label: "Senha" });
+
+				var linha = [];
+				linha.push({ id: "idade", type: "number", label: "Idade", min: 1, max: 89 });
+				linha.push({ id: "status", type: "static", label: "Situação", value: "ATIVO" });
+				campos.push(linha);
+
+				campos.push({ id: "sexo", type: "radio", label: "Sexo", items: "F=Feminino,M=Masculino", value: "F", vertical: true });
+				campos.push("-------------------------------");
+				campos.push({ id: "especial", type: "check", label: "Portador de necessiades especiais", value: false });
+				campos.push({ id: "obs", type: "textarea", label: "Observação", rows: 4, visibility: "$especial || $sexo == M" });
+
+				var grupo = { group: "Informações", fields: [] };
+				grupo.fields.push({ id: "data_cadastro", type: "date", label: "Data de cadastro", required: true });
+				grupo.fields.push({ id: "departamento", type: "select", label: "Departamento", items: "V=Vendas,R=Recursos Humanos,E=Expedição,C=Comercial", value: "E" });
+
+				campos.push(grupo);
+
+				var validacao = null;
+
+				var cadastro = await openFormDlg(campos, "Cadastro", { width: "40em" }, validacao);
+				console.log("Cadastro:", cadastro);
+			});
+
+			$('#btnForm2').click(async function (e) {
+				const CFOR_FIELDS = "Fistel,Entidade,CPF,CNPJ,Fistel Principal,Usuário SEI,Indicativo,Embarcação,COER,Proprietário Anterior";
+
+				let intellisense_options = {
+					onlyTokens: false,
+
+					classItem: "cfor-li-intellisense",
+
+					list: CFOR_FIELDS,
+
+					allow: function (e) {
+						if (!e.start) return true;
+						if (last_line = e.target.value.substr(0, e.start).match(/.*$/)) {
+							return !last_line[0].includes(":");
+						}
+						return true;
+					},
+
+					onSelect: function (e) {
+						return `${e.value}: `;
+					}
+				};
+
+
+				var dados = await openFormDlg([{ id: "servico", type: "select", label: "Serviço", items: "019,251,252,253,254,255,302,400,507,604" },
+				{ id: "descricao", type: "text", label: "Descrição", items: "Pedido Inicial,Nova Autorização de RF,Renúncia,Exclusão,Alteração,Autocadastramento,Mudança de Proprietário" },
+				{ id: "fields", type: "textarea", rows: 7, cols: 50, label: "Campos do processo", intellisense: intellisense_options, autofocus: true }],
+					"Detalhes do processo", "Salvar");
+
+				console.log("Dados:", dados);
+			});
+
+			$('#btnSolver').click(function (e) {
+				let inicio = new Date().getTime();
+				let variables = {};
+				let rows = $("#expressao").val().split("\n");
+				let results = [];
+
+				let test_result = result => {
+					if (result === undefined) return undefined;
+					if (!result) return false;
+					if (Array.isArray(result)) return result.length > 0;
+					if (typeof result == 'number') return result != 0;
+					if (typeof result == 'string') return result.trim().length != 0;
+					return Boolean(result);
+				};
+
+				const nt = 1;
+				let dump = (name, value, tab) => {
+					if (Array.isArray(value)) {
+						results.push("\t".repeat(tab * nt) + `[${name}] => (array) [`);
+						value.forEach((item, index) => dump(index, item, tab + 1));
+						results.push("\t".repeat(tab * nt) + "]");
+					} else if (typeof value == 'object') {
+						results.push("\t".repeat(tab * nt) + `[${name}] => (object) {`);
+						for (let key in value) dump(key, value[key], tab + 1);
+						results.push("\t".repeat(tab * nt) + "}");
+					} else results.push("\t".repeat(tab * nt) + `[${name}] => (${typeof value}) ${value}`);
+				};
+
+
+				rows.forEach((r) => {
+					let d = new Date().getTime();
+					if (!r.trim()) return;
+					let result = solve(r, /teste/i, variables);
+					if (r == 'dump') {
+						dump("VARS DUMP", variables, 0);
+					} else results.push(result + `   (t: ${Array.isArray(result) ? "array" : typeof result}, r: ${test_result(result)}, d: ${new Date().getTime() - d} ms)`);
+				});
+
+				results.push("\n" + `duração: ${new Date().getTime() - inicio} ms`);
+				$("#resultado").val(results.join("\n"));
+
+				console.log(variables);
+			});
+
+			$('#btnMD4').click(function (e) {
+				$("#txtMD4").val(hex_md4($("#txtMD4").val()));
+			});
+
+			$('#btnCPAG_I').click(function (e) {
+				$("#resposta_I").val("");
+				addCpag("535280009292020", "507", "50005840902").then(data => {
+					console.log("OK: ", data);
+					$("#resposta_I").val(data);
+				}).catch(err => {
+					console.log("ERRO: ", err);
+					$("#resposta_I").val(err);
+				});
+
+			});
+
+
+
+			// PopupList
+			$('#edtPL').on('keypress', e => {
+				if (e.key == ".") {
+					var lista = [];
+					lista.push({ text: "Executar", desc: "Comando Executar", value: "execute()", class: undefined });
+					lista.push({ text: "Abrir", desc: "Comando Abrir", value: "open()", class: undefined });
+					lista.push({ text: "Fechar", desc: "Comando Fechar", value: "close()", class: undefined });
+					lista.push({ text: "Salvar", desc: "Comando Salvar", value: "save()", class: undefined });
+					lista.push({ text: "Excluir", desc: "Comando Excluir", value: "delete()", class: undefined });
+					openPopupList("edtPL", { list: lista });
+				}
+			});
+
+
+			// PopupMenu
+			var items = [];
+			items.push({ id: "m1", text: "Item 1", icon: "menu-help-icon", tip: "Item 1 do menu" });
+			items.push({ id: "m2", text: "Item 2", icon: null, tip: "Item 2 do menu" });
+			items.push({ id: "m3", text: "Item 3", icon: null, tip: "Item 3 do menu" });
+			items.push("-");
+
+			var submenu4 = [];
+			submenu4.push({ id: "m41", text: "Item 4.1", icon: null, tip: "Item 4.1 do menu" });
+			submenu4.push({ id: "m42", text: "Item 4.2", icon: null, tip: "Item 4.2 do menu" });
+			submenu4.push({ id: "m43", text: "Item 4.3", icon: null, tip: "Item 4.3 do menu" });
+
+			items.push({ text: "Item 4", icon: null, tip: "Item 4 do menu", items: submenu4 });
+
+			createPopupMenu("btnMenu", items, { dropButton: true }, e => {
+			});
+		});
+
+	</script>
+
+</head>
+
+<body>
+	<h1>Teste de Biblioteca</h1>
+	<div class="test">
+		<h3>openPopupMenu(items, position)</h3>
+		<button id="meuMenu" onclick="opm()">Open Menu</button>
+	</div>
+
+	<div class="test">
+		<h3>createPopupMenu(controler, items, options, callback)</h3>
+		<button id="btnMenu">Menu</button>
+	</div>
+
+	<div class="test">
+		<h3>setClipboard(text, options)</h3>
+		<button id="btnSCB" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>waitMessage(msg)</h3>
+		<button id="btnWM" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>popupMessage(msg, title, options)</h3>
+		<button id="btnPM" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>infoMessage(msg, title, options)</h3>
+		<button id="btnIM" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>errorMessage(msg, title, options)</h3>
+		<button id="btnEM" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>confirmMessage(msg, title, options)</h3>
+		<button id="btnCM" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>openProcessDlg(title, options)</h3>
+		<button id="btnPCM" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>openFormDlg(fields, title, options, validation)</h3>
+		<button id="btnForm" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>openFormDlg2(fields, title, options, validation)</h3>
+		<button id="btnForm2" class="btn btn-info">Executar</button>
+	</div>
+
+	<div class="test">
+		<h3>Solver</h3>
+		<textarea id="expressao" rows="10" style="width: 80%;"></textarea> <button id="btnSolver"
+			class="btn btn-info">Resolver</button>
+		<br><br><b>Resultado:</b> <br>
+		<textarea id="resultado" rows="10" style="width:100%;"></textarea>
+	</div>
+
+
+
+
+</body>
+
+</html>

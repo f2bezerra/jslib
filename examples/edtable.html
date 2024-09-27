@@ -1,0 +1,113 @@
+﻿<html>
+
+<head>
+  <title>Teste de biblioteca</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  
+  <style>
+	div.test {
+		padding: 8px;
+		border: 1px silver solid;
+		margin: 8px;
+		border-radius: 6px;
+		box-shadow: 0px 2px 5px #888;
+	}
+	
+	div.test h3 {
+		font-size: 14px;
+		font-family: monospace;
+		color: #2196f3;
+	}
+	
+	.fht-class tbody tr {
+		height: 30;
+	}
+	
+	.fht-class tbody {
+		height: 188;
+	}
+	
+
+  </style>
+  
+
+  <link rel="stylesheet" href="../general/general.css">
+  <link rel="stylesheet" href="../edtable/edtable.css">
+  <script src="../general/general.js"></script>
+  <script src="../edtable/edtable.js"></script>
+  
+  
+  <script>
+  
+	function getRandomInt(min, max) {
+	  min = Math.ceil(min);
+	  max = Math.floor(max);
+	  return Math.floor(Math.random() * (max - min + 1)) + min;
+	}  
+  
+	$(document).ready(function() {
+		let randomdata = [];
+		sexos = ['F', 'M'];
+		for (let i = 1;i <= 3; i++) {
+			randomdata.push({nome: "nome_" + i, idade: getRandomInt(1,75), sexo: sexos[getRandomInt(0,1)], ativo: Boolean(getRandomInt(0,1))});
+		}
+		
+		$('#sel').val("Dois").focus().select();
+		//randomdata = [];
+	
+		$('#table').edtable({
+			scrollY: 5,
+			rowHeight: 40,
+			showLineNumber: true,
+			fixedHeaderClass: "fht-class",
+			
+			columns: [
+				{id: "nome", label: "Nome", type: "text", width: '3rs', validation: /^[a-z].*/i},
+				{id: "idade", label: "Idade", type: "number", width: '1rs'},
+				{id: "sexo", label: "Sexo", type: "select", options: "F=Feminino,M=Masculino", width: '2rs'},
+				{id: "detalhe", label: "Detalhe", type: [{condition: "$sexo == F", type: "multi", options: "E=Esporte,M=Moda,C=Cinema,P=Política"},
+														 {condition: "$sexo == M", type: "select", options: "F=Forte,f=Fraco"}], width: '2rs'},
+				{id: "ativo", label: "Ativo", type: "check", width: '1rs'},
+				{id: "obs", label: "Observação", type: "text", width: '2rs'}
+			],
+			
+			data: randomdata /*[
+				{nome: "Fulano", idade: "32", sexo: "M"},
+				{nome: "Beltrano", idade: "17", sexo: "M", ativo: true},
+				{nome: "Ciclana", idade: "35", sexo: "F"}
+			])*/
+		});
+		
+		$('#bget').click(e => {
+			let data = $('#table').get(0).EdTable.get();
+			data = JSON.stringify(data);
+			data = data.replace(/(?<=\s*{|\s*,)\s*"([^"]+)"\s*:\s*/g, "$1:");
+			
+			$("#res").text(data);
+			
+		})
+	});
+	
+  </script>
+  
+</head>
+<body>
+	<h2>Tabela Editável</h2>
+
+		<button id="bget">Ler dados</button>
+		
+		<br>
+		
+		<div style="width: 50%;margin:auto;font-size:14px;">
+			<table id="table" class="table table-bordered" />
+		</div>
+		
+		<div id="res"></div>
+		
+	
+</body>
+</html>
