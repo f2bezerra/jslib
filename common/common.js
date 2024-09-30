@@ -3343,63 +3343,82 @@ function openPopupList(target, options) {
 	   items: array de items do menu :: [<item> | <string>, ...]
 		   <item>: objeto especificador de item do menu :: {id, text, icon, tip, items}
 			   id: indetificador do item :: <string>
+			   key: chave do item que o define como booleano :: <boolean>
 			   text: texto do item :: <string>
 			   icon: ícone do item :: <string> | extension://caminho_da_imagem
+			   selected: item selecionado :: <boolean>
+			   visible: Exibir item de menu :: <boolean>
 			   tip: dica sobre o item de menu :: <string>
 			   items: array com o submenu correspondente ao item :: [<item> | <string>, ...]
-		   <string>: modo simplificado de inserir um item informado apenas o texto. Uma barra horizontal é inserida se informado '-'
-	   options: opções do menu :: {useTip, tipText, classControlerOn, dropButton, rtl} 
+		   <string>: modo simplificado de inserir um item informado apenas o texto. Se informado '-' uma barra horizontal é inserida, Se informado -<title>-, um barra de título é inserido
+	   options: opções do menu :: {useTip, tipText, classControllerOn, dropButton, rtl} 
 		   useTip: habilita a exibição de dicas :: <boolean>
 		   tipText: Texto padrão para dicas dos itens que não definiram uma específica. Usar '$0' para substituir pelo texto do item correspondente :: <string>
-		   classControlerOn: classe atribuída ao elemento controlador quando o menu é exibido :: <string>
+		   classControllerOn: classe atribuída ao elemento controlador quando o menu é exibido :: <string>
 		   dropButton: usar botão extra de controle de exibição do menu :: <boolean> | <string>
 			   <boolean>: insere um botão com uma seta pra baixo após o elemento contralador
 			   <string>: atribui uma classe ao botão extra para definir um símbolo diferente
 		   rtl: exibir menu alinhado à direita
 		   dropButtonTitle: dica para o botão extra de controle :: <string>
-	   callback: função chamada quando um item do menu é clicado :: function({originalEvent, id, text})
+		   preCreateSubmenus: Criar todos os submenus instantaneamente
+		   beforeOpen: função chamada antes da abertura do menu :: function ({menu})
+	   onSelect: função chamada quando um item do menu é clicado :: function({originalEvent, id, text})
    	
 	   return <menu>
 */
-function createPopupMenu(controler, items, options, callback) {
-	if (controler && typeof controler == "string") controler = document.getElementById(controler);
+function createPopupMenu(controller, items, options, onSelect) {
+	if (controller && typeof controller == "string") controller = document.getElementById(controller) || document.querySelector(controller);
 
-	if (controler && Array.isArray(controler)) {
-		callback = options;
+	if (controller && Array.isArray(controller)) {
+		onSelect = options;
 		options = items;
-		items = controler;
-		controler = null;
+		items = controller;
+		controller = null;
 	}
 
 	if (typeof options == "function") {
-		callback = options;
+		onSelect = options;
 		options = {};
 	} else if (!options) options = {};
 
-	if (controler) {
-		controler = $(controler).get(0);
+	if (controller) {
+		controller = $(controller).get(0);
 
-		if (controler.popupmenu && !items) {
-			$(controler.popupmenu).remove();
-			delete controler.popupmenu;
+		if (controller.popupmenu && !items) {
+			$(controller.popupmenu).remove();
+			delete controller.popupmenu;
 			return null;
 		}
 	}
 
-	var $menu = $('<div class="popup-menu"><ul class="popup-dropdown slipDown"></ul></div>');
+	if (!options.menuName) options.menuName = "menu" + Math.floor(Math.random() * 100000);
+
+	var $menu = $(`<div menu="${options.menuName}" class="popup-menu"><ul class="popup-dropdown slipDown"></ul></div>`);
 	var menu = $menu.get(0);
 	var $ul = $menu.find('ul');
 	var to_close, to_open;
 
+	let createSubmenu = function (target, items) {
+		target.submenu = createPopupMenu(items, options, onSelect);
+		target.submenu.parentMenu = menu;
+		target.isSubMenu = true;
+		$(target.submenu).mouseenter(() => { clearTimeout(to_close) });
+		$(target.submenu).mouseleave(() => { target.submenu.close() });
+	};
+
 	for (let item of items) {
 		if (typeof item == "string") {
-			if (item == "-") item = "<hr>";
+			if (m = item.match(/^-$|^-(.+)-$/)) item = (m[1] ? `<span>${m[1]}</span>` : "") + "<hr>";
 			$ul.append(`<li>${item}</li>`);
 		} else {
 			let $li = $(`<li><a href="javascript:void(0);">${item.text}</a></li>`);
-			$li.find('a').get(0).data = item.data;
+			let $a = $li.find('a');
 
-			if (item.id) $li.find('a').first().attr('item-id', item.id);
+			$a.get(0).data = item.data;
+
+			if (item.id) $a.attr('item-id', item.id);
+			if (item.key) $a.attr('item-key', item.key);
+			if (item.value) $a.attr('item-value', item.value);
 
 			if (item.icon) {
 				let m_icon = item.icon.match(/(extension:\/\/)?(.+\.(?:png|jpe?g|gif|svg))\s*$/i);
@@ -3407,7 +3426,7 @@ function createPopupMenu(controler, items, options, callback) {
 				let $icon = m_icon ?
 					$('<img class="popup-menu-icon">').attr('src', m_icon[1] ? browser.runtime.getURL(m_icon[2]) : item.icon) :
 					$('<span class="popup-menu-icon" />').addClass(item.icon);
-				$li.find('a').prepend($icon);
+				$a.prepend($icon);
 			}
 
 			$ul.append($li);
@@ -3419,8 +3438,30 @@ function createPopupMenu(controler, items, options, callback) {
 
 			//Criação de submenus
 			if (item.items && Array.isArray(item.items)) {
-				$li.find('a').addClass('popup-submenu').append(`<span class="popup-submenu-icon">&nbsp;</span>`).get(0).subMenuItems = item.items;
+				let anchorItem = $li.find('a').addClass('popup-submenu').append(`<span class="popup-submenu-icon">&nbsp;</span>`).get(0);
+				if (options.preCreateSubmenus) createSubmenu(anchorItem, item.items);
+				else anchorItem.subMenuItems = item.items;
 			}
+		}
+	}
+
+	if (options.value !== undefined) {
+		let key;
+		let setValues = options.value;
+
+		if (typeof setValues != "object" || setValues == null || Array.isArray(setValues)) {
+			key = $ul.find("a[item-key]").attr("item-key");
+			setValues = {};
+			setValues[key] = options.value;
+		}
+
+		for (key in setValues) {
+			$ul.find(`a[item-key=${key}]`).each((index, item) => {
+				let currentValue = $(item).attr('item-value');
+				if (currentValue == undefined) currentValue = index;
+
+				if (setValues[key] === currentValue) $(item).closest('li').addClass('popup-menu-item-selected');
+			});
 		}
 	}
 
@@ -3437,11 +3478,11 @@ function createPopupMenu(controler, items, options, callback) {
 		menu.close();
 	};
 
-	menu.close = function () {
+	menu.close = async function () {
 		clearTimeout(to_open);
 
 		$menu.removeClass("popup-menu-on");
-		if (controler && options.classControlerOn) $(controler).removeClass(options.classControlerOn);
+		if (controller && options.classControllerOn) $(controller).removeClass(options.classControllerOn);
 		if (!menu.isSubMenu) {
 			for (var i = 0; i < top.window.parent.frames.length; i++) $(top.window.parent.frames[i].document).off('keydown', keyDownHandler);
 			$(document).off('keydown', keyDownHandler);
@@ -3459,7 +3500,7 @@ function createPopupMenu(controler, items, options, callback) {
 		$menu.addClass("popup-menu-on");
 
 
-		if (controler && options.classControlerOn) $(controler).addClass(options.classControlerOn);
+		if (controller && options.classControllerOn) $(controller).addClass(options.classControllerOn);
 		if (!menu.isSubMenu) {
 			for (var i = 0; i < top.window.parent.frames.length; i++) $(top.window.parent.frames[i].document).on('keydown', keyDownHandler);
 			$(document).on('keydown', keyDownHandler);
@@ -3472,32 +3513,58 @@ function createPopupMenu(controler, items, options, callback) {
 
 		if ($menu.is('.popup-menu-on')) menu.open();
 		else menu.close();
-	}
+	};
 
-	if (controler) {
-		let reference = controler;
+	menu.value = function (key) {
+		let $menu = $(`[menu=${options.menuName}]`);
 
-		if (controler.popupmenu) $(controler.popupmenu).remove();
+		if (!key) {
+			let result = {};
+			$menu.find('a[item-key]').each((index, item) => {
+				key = $(item).attr('item-key');
+				if (result[key] == undefined) result[key] = menu.value(key);
+			});
 
-		if ($(controler).closest('.btn-group-dropdown').length) {
-			reference = $(controler).next('.btn-dropdown');
+			let values = Object.values(result);
+			if (values.length < 2) result = values[0];
+			return result;
+		}
+
+		let $item = $menu.find(`a[item-key=${key}]`);
+		let $selectItemValue = $item.closest('li.popup-menu-item-selected');
+		if (!$selectItemValue.length) return null;
+
+		let value = $item.attr('item-value');
+		if (value == undefined) value = $selectItemValue.index();
+
+		return value;
+	};
+
+
+	if (controller) {
+		let reference = controller;
+
+		if (controller.popupmenu) $(controller.popupmenu).remove();
+
+		if ($(controller).closest('.btn-group-dropdown').length) {
+			reference = $(controller).next('.btn-dropdown');
 			reference.off("click");
 		} else {
-			$(controler).wrap('<div class="btn-group-dropdown"></div>');
+			$(controller).wrap('<div class="btn-group-dropdown"></div>');
 
 			if (options.dropButton) {
 				var $btn = $('<button class="btn-dropdown">&nbsp;</button>');
 				if (typeof options.dropButton == "string") $btn.addClass(options.dropButton);
 				else $btn.html('<span class="btn-caret"></span>');
 				if (options.dropButtonTitle) $btn.attr('title', options.dropButtonTitle);
-				$(controler).after($btn);
+				$(controller).after($btn);
 				reference = $btn;
 			}
 		}
 
-		if (options.rtl) $menu.find('ul').css("left", "calc(-100% + " + ($(controler).width() + 2) + "px)");
+		if (options.rtl) $menu.find('ul').css("left", "calc(-100% + " + ($(controller).width() + 2) + "px)");
 
-		controler.popupmenu = menu;
+		controller.popupmenu = menu;
 		$(reference).after($menu).click(e => {
 			e.preventDefault();
 			e.stopPropagation();
@@ -3512,12 +3579,8 @@ function createPopupMenu(controler, items, options, callback) {
 		if (!$(e.currentTarget).is('.popup-submenu')) return;
 
 		if (e.currentTarget.subMenuItems) {
-			e.currentTarget.submenu = createPopupMenu(e.currentTarget.subMenuItems, options, callback);
-			e.currentTarget.submenu.parentMenu = menu;
-			e.currentTarget.submenu.isSubMenu = true;
+			createSubmenu(e.currentTarget, e.currentTarget.subMenuItems);
 			delete e.currentTarget.subMenuItems;
-			$(e.currentTarget.submenu).mouseenter(() => { clearTimeout(to_close) });
-			$(e.currentTarget.submenu).mouseleave(() => { e.currentTarget.submenu.close() });
 		}
 
 		let p = getAbsolutePosition(e.currentTarget);
@@ -3534,13 +3597,31 @@ function createPopupMenu(controler, items, options, callback) {
 	$menu.find('a').on('mousedown', (e) => {
 		e.preventDefault();
 
-		let id = $(e.currentTarget).attr('item-id');
 
-		if ($(e.currentTarget).is('.popup-submenu') && !id) {
+		if ($(e.currentTarget).is('.popup-submenu')) {
 			open_submenu(e);
 		} else {
 			menu.close();
-			if (callback) callback.call(e.currentTarget, { originalEvent: e, id: id, text: $(e.currentTarget).text(), data: e.currentTarget.data });
+			setTimeout(() => {
+				let $li = $(e.currentTarget).closest('li');
+				let id = $(e.currentTarget).attr('item-id');
+				let key = $(e.currentTarget).attr('item-key');
+				if (key) {
+					$(`a[item-key=${key}]`).closest('li').removeClass('popup-menu-item-selected');
+					$li.toggleClass('popup-menu-item-selected');
+				}
+
+				if (onSelect) onSelect.call(e.currentTarget, {
+					originalEvent: e,
+					id: id,
+					text: $(e.currentTarget).text(),
+					data: e.currentTarget.data,
+					key: key,
+					value: $(e.currentTarget).attr('item-value'),
+					index: $li.index(),
+					menu: menu
+				});
+			}, 10);
 		}
 
 	});

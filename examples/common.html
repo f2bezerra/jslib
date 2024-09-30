@@ -25,12 +25,11 @@
 	</style>
 
 
-	<link rel="stylesheet" href="../general/general.css">
-	<!-- <link rel="stylesheet" href="../dists/general.min.css"> -->
-	<link rel="stylesheet" href="../dists/intellisense.min.css">
+	<link rel="stylesheet" href="../common/common.css">
+	<link rel="stylesheet" href="../intellisense/intellisense.css">
 	<!-- <script src="../dists/general.min.js"></script> -->
-	<script src="../general/general.js"></script>
-	<script src="../dists/intellisense.min.js"></script>
+	<script src="../common/common.js"></script>
+	<script src="../intellisense/intellisense.js"></script>
 
 
 	<script>
@@ -438,9 +437,10 @@
 
 			// PopupMenu
 			var items = [];
-			items.push({ id: "m1", text: "Item 1", icon: "menu-help-icon", tip: "Item 1 do menu" });
-			items.push({ id: "m2", text: "Item 2", icon: null, tip: "Item 2 do menu" });
-			items.push({ id: "m3", text: "Item 3", icon: null, tip: "Item 3 do menu" });
+			items.push("-Filtrar por:-");
+			items.push({ id: "m1", text: "Item 1", icon: null, key: "sel1", tip: "Item 1 do menu" });
+			items.push({ id: "m2", text: "Item 2", icon: null, key: "sel1", tip: "Item 2 do menu" });
+			items.push({ id: "m3", text: "Item 3", icon: null, key: "sel1", tip: "Item 3 do menu" });
 			items.push("-");
 
 			var submenu4 = [];
@@ -448,9 +448,11 @@
 			submenu4.push({ id: "m42", text: "Item 4.2", icon: null, tip: "Item 4.2 do menu" });
 			submenu4.push({ id: "m43", text: "Item 4.3", icon: null, tip: "Item 4.3 do menu" });
 
-			items.push({ text: "Item 4", icon: null, tip: "Item 4 do menu", items: submenu4 });
+			items.push({ text: "Item 4", icon: "menu-help-icon", tip: "Item 4 do menu", items: submenu4 });
 
-			createPopupMenu("btnMenu", items, { dropButton: true }, e => {
+			createPopupMenu("btnMenu", items, { dropButton: true, preCreateSubmenus: true, value: 1, rtl: false }, e => {
+				console.log(e.menu.value());
+				alert('Selecionado');
 			});
 		});
 
