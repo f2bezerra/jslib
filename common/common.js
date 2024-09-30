@@ -3409,6 +3409,8 @@ function createPopupMenu(controller, items, options, onSelect) {
 	for (let item of items) {
 		if (typeof item == "string") {
 			if (m = item.match(/^-$|^-(.+)-$/)) item = (m[1] ? `<span>${m[1]}</span>` : "") + "<hr>";
+			else item = `<a href="javascript:void(0);">${item}</a>`;
+
 			$ul.append(`<li>${item}</li>`);
 		} else {
 			let $li = $(`<li><a href="javascript:void(0);">${item.text}</a></li>`);

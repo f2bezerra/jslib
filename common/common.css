@@ -894,7 +894,7 @@ textarea.form-control {
 /*** MENUS E LISTAS SUSPENSAS ***/
 
 .popup-menu {
-  position: fixed;
+  position: absolute;
   display: block;
   z-index: 30002;
 }
