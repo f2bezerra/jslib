@@ -3361,6 +3361,7 @@ function openPopupList(target, options) {
 		   rtl: exibir menu alinhado à direita
 		   dropButtonTitle: dica para o botão extra de controle :: <string>
 		   preCreateSubmenus: Criar todos os submenus instantaneamente
+		   useTextAsValue: Usar texto como valor se não possuir atributo value
 		   beforeOpen: função chamada antes da abertura do menu :: function ({menu})
 	   onSelect: função chamada quando um item do menu é clicado :: function({originalEvent, id, text})
    	
@@ -3420,7 +3421,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 
 			if (item.id) $a.attr('item-id', item.id);
 			if (item.key) $a.attr('item-key', item.key);
-			if (item.value) $a.attr('item-value', item.value);
+			if (item.value !== undefined) $a.attr('item-value', item.value);
 
 			if (item.icon) {
 				let m_icon = item.icon.match(/(extension:\/\/)?(.+\.(?:png|jpe?g|gif|svg))\s*$/i);
@@ -3460,7 +3461,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 		for (key in setValues) {
 			$ul.find(`a[item-key=${key}]`).each((index, item) => {
 				let currentValue = $(item).attr('item-value');
-				if (currentValue == undefined) currentValue = index;
+				if (currentValue == undefined) currentValue = options.useTextAsValue ? $(item).text() : index;
 
 				if (setValues[key] === currentValue) $(item).closest('li').addClass('popup-menu-item-selected');
 			});
@@ -3532,12 +3533,11 @@ function createPopupMenu(controller, items, options, onSelect) {
 			return result;
 		}
 
-		let $item = $menu.find(`a[item-key=${key}]`);
-		let $selectItemValue = $item.closest('li.popup-menu-item-selected');
-		if (!$selectItemValue.length) return null;
+		let $item = $menu.find(`a[item-key=${key}]`).filter((index, item) => item.closest('li.popup-menu-item-selected'));
+		if (!$item.length) return null;
 
 		let value = $item.attr('item-value');
-		if (value == undefined) value = $selectItemValue.index();
+		if (value == undefined) value = options.useTextAsValue ? $item.text() : $selectItemValue.index();
 
 		return value;
 	};
@@ -3619,7 +3619,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 					text: $(e.currentTarget).text(),
 					data: e.currentTarget.data,
 					key: key,
-					value: $(e.currentTarget).attr('item-value'),
+					value: menu.value(key),
 					index: $li.index(),
 					menu: menu
 				});
