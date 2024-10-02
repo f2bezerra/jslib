@@ -3609,7 +3609,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 				let id = $(e.currentTarget).attr('item-id');
 				let key = $(e.currentTarget).attr('item-key');
 				if (key) {
-					$(`a[item-key=${key}]`).closest('li').removeClass('popup-menu-item-selected');
+					$(`[menu=${options.menuName}] a[item-key=${key}]`).closest('li').removeClass('popup-menu-item-selected');
 					$li.toggleClass('popup-menu-item-selected');
 				}
 
