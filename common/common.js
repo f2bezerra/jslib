@@ -3613,6 +3613,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 					$li.toggleClass('popup-menu-item-selected');
 				}
 
+				//Executar evento onSelect
 				if (onSelect) onSelect.call(e.currentTarget, {
 					originalEvent: e,
 					id: id,
