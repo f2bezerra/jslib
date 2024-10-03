@@ -22,6 +22,27 @@
 			font-family: monospace;
 			color: #2196f3;
 		}
+
+		.menu-teste {
+			font-size: 12.5px;
+		}
+
+		.menu-teste li a {
+			border: 1px solid transparent !important;
+		}
+
+
+		.menu-teste li a:focus,
+		.menu-teste li a:hover {
+			color: #ffffff !important;
+			background-color: #03a9f4 !important;
+			border-radius: 4px !important;
+			border: 1px solid black !important;
+		}
+
+		.menu-teste li:hover {
+			color: #ffffff !important;
+		}
 	</style>
 
 
@@ -450,9 +471,7 @@
 
 			items.push({ text: "Item 4", icon: "menu-help-icon", tip: "Item 4 do menu", items: submenu4 });
 
-			items = ["Item1", "Item2", "Item3", "Item4"];
-
-			createPopupMenu("btnMenu", items, { dropButton: true, preCreateSubmenus: true, value: 1, rtl: false }, e => {
+			createPopupMenu("btnMenu", items, { dropButton: true, value: 1 }, e => {
 				console.log(e);
 				console.log(e.menu.value());
 				alert('Selecionado');
@@ -472,7 +491,9 @@
 
 	<div class="test">
 		<h3>createPopupMenu(controler, items, options, callback)</h3>
-		<button id="btnMenu">Menu</button>
+		<div>
+			<button id="btnMenu">Menu</button>
+		</div>
 	</div>
 
 	<div class="test">

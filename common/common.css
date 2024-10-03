@@ -4,11 +4,11 @@
 /************************************************/
 /*@charset "utf-8";*/
 
+
 /*** GERAIS ***/
 [data-before]::before {
   content: attr(data-before);
 }
-
 
 /*** MODAIS ***/
 
@@ -903,8 +903,7 @@ textarea.form-control {
   position: relative;
 }
 
-.popup-menu a {
-  font-size: 1.1em !important;
+.popup-menu li a {
   line-height: 1.42em;
 }
 
@@ -927,8 +926,6 @@ textarea.form-control {
   background: #666 !important;
 }
 
-
-
 .popup-menu-icon {
   width: 16px !important;
   height: 1.42852em !important;
@@ -939,31 +936,35 @@ textarea.form-control {
 .popup-submenu-icon {
   position: relative;
   float: right;
-  width: 12px;
-  height: 1.42em;
   right: -12px;
+  top: 4px;
   line-height: 1.42857143em;
+  width: 12px;
+  height: 12px;
+  background-color: currentColor;
   background-size: 12px 12px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: url(data:image/svg+xml;base64,PHN2ZyBzdHlsZT0iZmlsbDojODQ4NDg0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI0IDI0Ij4NCjxwYXRoIGQ9Im0xNyAxMC4yYy0yLjMtMi4yNi00LjYtNC41My02LjgtNi43OS0xLTAuOTItMi43MS0wLjg4LTMuNTQgMC4xOS0wLjkyIDAuOTUtMC44OCAyLjY1IDAuMTggMy40OSAxLjYgMS42IDMuMTYgMy4yMSA0Ljc2IDQuODEtMS42OSAxLjctMy40IDMuMzgtNS4wOCA1LjA5LTAuODc1IDEtMC43MzEgMi43IDAuMzY4IDMuNDggMS4wNiAwLjg0IDIuNzcgMC42NzIgMy42Mi0wLjM4OSAyLjIyLTIuMjMgNC40Ni00LjQzIDYuNjYtNi42OCAwLjY4OC0wLjg1IDAuNzU2LTIuMjUtMC4wOTU3LTMuMDJsLTAuMS0wLjF2LTAuMXoiLz4NCjwvc3ZnPg==);
+  mask: url(data:image/svg+xml;base64,PHN2ZyBzdHlsZT0iZmlsbDojODQ4NDg0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJibGFjayI+DQo8cGF0aCBkPSJtMTcgMTAuMmMtMi4zLTIuMjYtNC42LTQuNTMtNi44LTYuNzktMS0wLjkyLTIuNzEtMC44OC0zLjU0IDAuMTktMC45MiAwLjk1LTAuODggMi42NSAwLjE4IDMuNDkgMS42IDEuNiAzLjE2IDMuMjEgNC43NiA0LjgxLTEuNjkgMS43LTMuNCAzLjM4LTUuMDggNS4wOS0wLjg3NSAxLTAuNzMxIDIuNyAwLjM2OCAzLjQ4IDEuMDYgMC44NCAyLjc3IDAuNjcyIDMuNjItMC4zODkgMi4yMi0yLjIzIDQuNDYtNC40MyA2LjY2LTYuNjggMC42ODgtMC44NSAwLjc1Ni0yLjI1LTAuMDk1Ny0zLjAybC0wLjEtMC4xdi0wLjF6Ii8+DQo8L3N2Zz4=);
+  mask-size: 12px 12px;
+  mask-position: center;
 }
 
-li.popup-menu-item-selected::before {
+li.popup-menu-item-selected a::before {
   position: absolute;
   display: inline-block;
   content: '\00a0';
-  margin: 2px 0px;
-  width: 20px;
+  margin: 4px 0 0 -16px;
+  width: 12px;
+  height: 12px;
+  background-color: currentColor;
   background-size: 12px 12px;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-image: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9IiM2OTY5NjkiIHN0cm9rZS13aWR0aD0iMCI+CjxwYXRoIGNsYXNzPSJzdDAiIGQ9Ik0yMS43LDMuNWMtMC40LTAuNC0xLTAuNC0xLjMsMEw5LjMsMTQuNUwzLjYsOC44Yy0wLjQtMC40LTEtMC40LTEuMywwbC0yLDJjLTAuNCwwLjQtMC40LDEsMCwxLjNsOC40LDguNCBjMC40LDAuNCwxLDAuNCwxLjMsMEwyMy43LDYuOGMwLjQtMC40LDAuNC0xLDAtMS4zTDIxLjcsMy41eiIvPgo8L3N2Zz4=);
+  mask: url(data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDI0IDI0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHN0cm9rZS13aWR0aD0iMCIgZmlsbD0iYmxhY2siPgo8cGF0aCBjbGFzcz0ic3QwIiBkPSJNMjEuNywzLjVjLTAuNC0wLjQtMS0wLjQtMS4zLDBMOS4zLDE0LjVMMy42LDguOGMtMC40LTAuNC0xLTAuNC0xLjMsMGwtMiwyYy0wLjQsMC40LTAuNCwxLDAsMS4zbDguNCw4LjQgYzAuNCwwLjQsMSwwLjQsMS4zLDBMMjMuNyw2LjhjMC40LTAuNCwwLjQtMSwwLTEuM0wyMS43LDMuNXoiIC8+Cjwvc3ZnPg==);
+  mask-size: 12px 12px;
+  mask-position: center;
 }
 
-li.popup-menu-item-selected {
+/* li.popup-menu-item-selected {
   background: linear-gradient(90deg, #f5f5f5, transparent);
-}
+} */
 
 .popup-menu-on .popup-dropdown {
   display: block;
@@ -977,7 +978,7 @@ li.popup-menu-item-selected {
   display: none;
   float: left;
   min-width: 160px;
-  padding: 5px 0;
+  padding: 4px 0;
   margin: 2px 0 0;
   text-align: left;
   list-style: none;
@@ -994,9 +995,10 @@ li.popup-menu-item-selected {
 
 .popup-dropdown>li>a:focus,
 .popup-dropdown>li>a:hover {
-  color: #262626;
   text-decoration: none;
-  background-color: #f5f5f5;
+
+  background: #546E7A;
+  color: #FAFAFA;
 }
 
 .popup-dropdown>li>a {

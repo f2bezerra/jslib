@@ -3355,12 +3355,12 @@ function openPopupList(target, options) {
 		   useTip: habilita a exibição de dicas :: <boolean>
 		   tipText: Texto padrão para dicas dos itens que não definiram uma específica. Usar '$0' para substituir pelo texto do item correspondente :: <string>
 		   classControllerOn: classe atribuída ao elemento controlador quando o menu é exibido :: <string>
+		   className: classe atribuída ao menu para estilar via css 
 		   dropButton: usar botão extra de controle de exibição do menu :: <boolean> | <string>
 			   <boolean>: insere um botão com uma seta pra baixo após o elemento contralador
 			   <string>: atribui uma classe ao botão extra para definir um símbolo diferente
-		   rtl: exibir menu alinhado à direita
 		   dropButtonTitle: dica para o botão extra de controle :: <string>
-		   preCreateSubmenus: Criar todos os submenus instantaneamente
+		   deferSubmenuCreation: Adiar criação dos submenus
 		   useTextAsValue: Usar texto como valor se não possuir atributo value
 		   beforeOpen: função chamada antes da abertura do menu :: function ({menu})
 	   onSelect: função chamada quando um item do menu é clicado :: function({originalEvent, id, text})
@@ -3399,10 +3399,13 @@ function createPopupMenu(controller, items, options, onSelect) {
 	var $ul = $menu.find('ul');
 	var to_close, to_open;
 
+	if (options.className) $menu.addClass(options.className);
+
 	let createSubmenu = function (target, items) {
 		target.submenu = createPopupMenu(items, options, onSelect);
 		target.submenu.parentMenu = menu;
-		target.isSubMenu = true;
+		target.submenu.parentMenuItem = target;
+		target.submenu.isSubMenu = true;
 		$(target.submenu).mouseenter(() => { clearTimeout(to_close) });
 		$(target.submenu).mouseleave(() => { target.submenu.close() });
 	};
@@ -3442,7 +3445,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 			//Criação de submenus
 			if (item.items && Array.isArray(item.items)) {
 				let anchorItem = $li.find('a').addClass('popup-submenu').append(`<span class="popup-submenu-icon">&nbsp;</span>`).get(0);
-				if (options.preCreateSubmenus) createSubmenu(anchorItem, item.items);
+				if (!options.deferSubmenuCreation) createSubmenu(anchorItem, item.items);
 				else anchorItem.subMenuItems = item.items;
 			}
 		}
@@ -3498,24 +3501,61 @@ function createPopupMenu(controller, items, options, onSelect) {
 	};
 
 	menu.open = function (p) {
-		if (p != undefined) $menu.css("left", p.x).css("top", p.y);
+		if (p != undefined) {
+			$menu.css("left", p.x).css("top", p.y);
+		} else {
+
+			if (!menu.size) {
+				$menu.css('visibility', 'hidden').css('left', '0px').css('top', '0px').css('position', 'fixed').addClass("popup-menu-on");
+				let rect = menu.getBoundingClientRect();
+				menu.size = { width: rect.width, height: rect.height };
+				$menu.css('visibility', '').css('left', '').css('top', '').css('position', '').removeClass("popup-menu-on");
+			}
+
+			let viewPort = window.visualViewport;
+			let translate = "";
+
+			if (menu.isSubMenu) {
+
+				let parentMenuRect = menu.parentMenu.getBoundingClientRect();
+				let menuPosition = getAbsolutePosition(menu.parentMenuItem);
+
+				if ((parentMenuRect.right + menu.size.width) > viewPort.width) menuPosition.x = parentMenuRect.x - menu.size.width;
+				else menuPosition.x += parentMenuRect.width;
+
+				let translateY = (menuPosition.y + menu.size.height) > viewPort.height;
+
+				if (translateY) {
+					let offset = $(menu.parentMenuItem).outerHeight() + 2;
+					translate = `translateY(calc(-100% + ${offset}px))`;
+				}
+
+				$menu.css("left", menuPosition.x).css("top", menuPosition.y);
+
+			} else {
+				let menuRect = menu.getBoundingClientRect();
+				let translateX = (menuRect.x + menu.size.width) > viewPort.width;
+
+				if (translateX) {
+					let offset = $(controller).outerWidth() + $(controller).next('.btn-dropdown').outerWidth() + 2;
+					translate = `translateX(calc(-100% + ${offset}px))`;
+				}
+
+				for (var i = 0; i < top.window.parent.frames.length; i++) $(top.window.parent.frames[i].document).on('keydown', keyDownHandler);
+				$(document).on('keydown', keyDownHandler);
+				$(document).on("mousedown focusout", mouseDownHandler);
+			}
+
+			$menu.css("transform", translate);
+		}
 
 		$menu.addClass("popup-menu-on");
-
-
 		if (controller && options.classControllerOn) $(controller).addClass(options.classControllerOn);
-		if (!menu.isSubMenu) {
-			for (var i = 0; i < top.window.parent.frames.length; i++) $(top.window.parent.frames[i].document).on('keydown', keyDownHandler);
-			$(document).on('keydown', keyDownHandler);
-			$(document).on("mousedown focusout", mouseDownHandler);
-		} else if ((p.x + $menu.dimension('outerSize').width) > $menu.parent().outerWidth()) $menu.css("left", $(menu.parentMenu).position().left - $menu.dimension('outerSize').width);
 	};
 
 	menu.toggle = function (e) {
-		$menu.toggleClass("popup-menu-on");
-
-		if ($menu.is('.popup-menu-on')) menu.open();
-		else menu.close();
+		if ($menu.is('.popup-menu-on')) menu.close();
+		else menu.open();
 	};
 
 	menu.value = function (key) {
@@ -3585,15 +3625,11 @@ function createPopupMenu(controller, items, options, onSelect) {
 			delete e.currentTarget.subMenuItems;
 		}
 
-		let p = getAbsolutePosition(e.currentTarget);
-		p.x += $(e.currentTarget).outerWidth();
-
-		if (delay) to_open = setTimeout(() => { e.currentTarget.submenu.open(p) }, delay);
+		if (delay) to_open = setTimeout(() => { e.currentTarget.submenu.open() }, delay);
 		else {
 			clearTimeout(to_open);
-			e.currentTarget.submenu.open(p);
+			e.currentTarget.submenu.open();
 		}
-
 	};
 
 	$menu.find('a').on('mousedown', (e) => {
