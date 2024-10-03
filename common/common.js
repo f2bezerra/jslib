@@ -3344,6 +3344,7 @@ function openPopupList(target, options) {
 		   <item>: objeto especificador de item do menu :: {id, text, icon, tip, items}
 			   id: indetificador do item :: <string>
 			   key: chave do item que o define como booleano :: <boolean>
+			   value: valor associado ao item
 			   text: texto do item :: <string>
 			   icon: ícone do item :: <string> | extension://caminho_da_imagem
 			   selected: item selecionado :: <boolean>
@@ -3466,7 +3467,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 				let currentValue = $(item).attr('item-value');
 				if (currentValue == undefined) currentValue = options.useTextAsValue ? $(item).text() : index;
 
-				if (setValues[key] === currentValue) $(item).closest('li').addClass('popup-menu-item-selected');
+				if (setValues[key] != null && setValues[key].toString() == currentValue) $(item).closest('li').addClass('popup-menu-item-selected');
 			});
 		}
 	}
@@ -3518,7 +3519,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 			if (menu.isSubMenu) {
 
 				let parentMenuRect = menu.parentMenu.getBoundingClientRect();
-				let menuPosition = getAbsolutePosition(menu.parentMenuItem);
+				let menuPosition = menu.parentMenuItem.getBoundingClientRect();
 
 				if ((parentMenuRect.right + menu.size.width) > viewPort.width) menuPosition.x = parentMenuRect.x - menu.size.width;
 				else menuPosition.x += parentMenuRect.width;
@@ -3537,7 +3538,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 				let translateX = (menuRect.x + menu.size.width) > viewPort.width;
 
 				if (translateX) {
-					let offset = $(controller).outerWidth() + $(controller).next('.btn-dropdown').outerWidth() + 2;
+					let offset = $(controller).outerWidth() + ($(controller).next('.btn-dropdown').outerWidth() ?? 0) + 2;
 					translate = `translateX(calc(-100% + ${offset}px))`;
 				}
 
@@ -3645,7 +3646,8 @@ function createPopupMenu(controller, items, options, onSelect) {
 				let id = $(e.currentTarget).attr('item-id');
 				let key = $(e.currentTarget).attr('item-key');
 				if (key) {
-					$(`[menu=${options.menuName}] a[item-key=${key}]`).closest('li').removeClass('popup-menu-item-selected');
+					let $lis = $(`[menu=${options.menuName}] a[item-key=${key}]`);
+					if ($lis.length > 1) $lis.closest('li').removeClass('popup-menu-item-selected');
 					$li.toggleClass('popup-menu-item-selected');
 				}
 
