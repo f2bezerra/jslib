@@ -1000,8 +1000,8 @@ function waitDocumentReady(doc, options) {
 
 	let default_options = {
 		interval: 250,			//--- intervalo (ms) de teste do status do documento
-		timeout: 15000
-	};			//--- timeout (ms) de aguardo da carga
+		timeout: 15000			//--- timeout (ms) de aguardo da carga
+	};
 
 	if (!options) options = {};
 	if (typeof options == "string" || typeof options == "function") options = { filter: options };
@@ -1009,29 +1009,37 @@ function waitDocumentReady(doc, options) {
 
 	for (let prop in default_options) if (default_options.hasOwnProperty(prop) && default_options[prop] != undefined && options[prop] == undefined) options[prop] = default_options[prop];
 
-	var get_doc = (d) => {
+	var get_doc = () => {
+		let d = doc;
 		if (d instanceof Document) return d;
 		if (d instanceof Window) return d.document;
 
-		d = $(d).get().find(tmp => {
-			if (tmp instanceof Element && tmp.tagName == "IFRAME") tmp = tmp.contentDocument || tmp.contentWindow.document;
-			if (!tmp instanceof Document || tmp.readyState != "complete") return false;
-			if (!options.filter) return true;
-			if (typeof options.filter == "function") return options.filter(tmp);
-			return tmp.querySelector(options.filter) != null;
-		});
+		if (typeof d == 'string') {
+			d = $(d).get();
+			if (!d.length) d = $(window.top.document).find(doc).get();
+
+			d = d.find(tmp => {
+				if (tmp.tagName === "IFRAME") tmp = tmp.contentDocument || tmp.contentWindow.document;
+				if (!tmp instanceof Document || tmp.readyState != "complete") return false;
+				if (!options.filter) return true;
+				if (typeof options.filter == "function") return options.filter(tmp);
+				return tmp.querySelector(options.filter) != null;
+			});
+		}
 
 		if (!d) return null;
-		if (d instanceof Document) return d;
-		if (d instanceof Window) return d.document;
-		if (d instanceof Element && d.tagName == "IFRAME") return d.contentDocument || d.contentWindow.document;
+
+		if (d instanceof Window) d = d.document;
+		if (d.tagName === "IFRAME") d = d.contentDocument || d.contentWindow.document;
+		if (d.URL === 'about:blank') d = null;
+
 		return d;
 	};
 
 	return new Promise(function (resolve, reject) {
 		var counter = 0, ready_interval = setInterval(function () {
 			counter++;
-			let d = get_doc(doc);
+			let d = get_doc();
 
 			if (!d || d.readyState != "complete") {
 				if (options.timeout && (counter * options.interval >= options.timeout)) {
@@ -1467,7 +1475,8 @@ function openDlg(dlg, options) {
 		listSeparator: ",",			// separador para listas em string
 		freeDlg: true,				// excluir dialog após fechamento
 		validate: true,				// Validar campos
-		confirmButton: undefined
+		confirmButton: undefined,
+		backgroundOpacity: 0
 	}; 	// identificação do botão de confirmação
 
 	for (let prop in default_options) if (default_options.hasOwnProperty(prop) && default_options[prop] != undefined && options[prop] == undefined) options[prop] = default_options[prop];
@@ -1519,7 +1528,7 @@ function openDlg(dlg, options) {
 	var bkgrd = doc.createElement("div");
 	bkgrd.className = "modal-dlg-background";
 
-	if (options.backgroundOpacity != undefined) $(bkgrd).css("opacity", (1 - options.backgroundOpacity));
+	if (options.backgroundOpacity != undefined) $(bkgrd).css("opacity", options.backgroundOpacity);
 	if (options.backgroundColor != undefined) $(bkgrd).css("background-color", options.backgroundColor);
 
 	container.appendChild(bkgrd);
@@ -1726,14 +1735,14 @@ function openDlg(dlg, options) {
 			if (typeof b == "string") {
 				let cls = "";
 				b = b.replace(/([^:]+):(.+)/, (m0, m1, m2) => {
-					cls = " btn-" + m2;
+					cls = " cbtn-" + m2;
 					if (m2 == "confirm" && !options.confirmButton) options.confirmButton = m1;
 					else if (m2 == "cancel" && !options.cancelButton) options.cancelButton = m1;
 					return m1;
 				});
 
-				$(btn).text(b).attr("action", identityNormalize(b)).addClass("btn btn-md btn-default" + cls);
-			} else $(btn).text(b.name).attr("action", identityNormalize(b.action)).addClass("btn btn-md " + b.className);
+				$(btn).text(b).attr("action", identityNormalize(b)).addClass("cbtn cbtn-md cbtn-default" + cls);
+			} else $(btn).text(b.name).attr("action", identityNormalize(b.action)).addClass("cbtn cbtn-md " + b.className);
 
 			if (options.defaultButton == identityNormalize($(btn).text())) $(btn).attr("default", true);
 
@@ -2107,8 +2116,11 @@ function confirmMessage(msg, title, options) {
 		cancelButton: "Não",					// botão de negação
 		buttonsAlign: "center", 				// alinhamento dos botões
 		maxwidth: "md",						// largura máxima do popup
-		textAlign: "center"
-	};				// alinhamento da mensagem
+		textAlign: "center",
+		alwaysResolve: true
+	};
+
+	// alinhamento da mensagem
 
 	for (let prop in default_options) if (default_options.hasOwnProperty(prop) && default_options[prop] != undefined && options[prop] == undefined) options[prop] = default_options[prop];
 
@@ -3428,10 +3440,10 @@ function createPopupMenu(controller, items, options, onSelect) {
 			if (item.value !== undefined) $a.attr('item-value', item.value);
 
 			if (item.icon) {
-				let m_icon = item.icon.match(/(extension:\/\/)?(.+\.(?:png|jpe?g|gif|svg))\s*$/i);
+				let iconSrc = getResourcePath(item.icon, 'image');
 
-				let $icon = m_icon ?
-					$('<img class="popup-menu-icon">').attr('src', m_icon[1] ? browser.runtime.getURL(m_icon[2]) : item.icon) :
+				let $icon = iconSrc ?
+					$('<img class="popup-menu-icon">').attr('src', iconSrc) :
 					$('<span class="popup-menu-icon" />').addClass(item.icon);
 				$a.prepend($icon);
 			}
@@ -3538,7 +3550,7 @@ function createPopupMenu(controller, items, options, onSelect) {
 				let translateX = (menuRect.x + menu.size.width) > viewPort.width;
 
 				if (translateX) {
-					let offset = $(controller).outerWidth() + ($(controller).next('.btn-dropdown').outerWidth() ?? 0) + 2;
+					let offset = $(controller).outerWidth() + ($(controller).next('.cbtn-dropdown').outerWidth() ?? 0) + 2;
 					translate = `translateX(calc(-100% + ${offset}px))`;
 				}
 
@@ -3589,16 +3601,16 @@ function createPopupMenu(controller, items, options, onSelect) {
 
 		if (controller.popupmenu) $(controller.popupmenu).remove();
 
-		if ($(controller).closest('.btn-group-dropdown').length) {
-			reference = $(controller).next('.btn-dropdown');
+		if ($(controller).closest('.cbtn-group-dropdown').length) {
+			reference = $(controller).next('.cbtn-dropdown');
 			reference.off("click");
 		} else {
-			$(controller).wrap('<div class="btn-group-dropdown"></div>');
+			$(controller).wrap('<div class="cbtn-group-dropdown"></div>');
 
 			if (options.dropButton) {
-				var $btn = $('<button class="btn-dropdown">&nbsp;</button>');
+				var $btn = $('<button class="cbtn-dropdown">&nbsp;</button>');
 				if (typeof options.dropButton == "string") $btn.addClass(options.dropButton);
-				else $btn.html('<span class="btn-caret"></span>');
+				else $btn.html('<span class="cbtn-caret"></span>');
 				if (options.dropButtonTitle) $btn.attr('title', options.dropButtonTitle);
 				$(controller).after($btn);
 				reference = $btn;
@@ -3978,6 +3990,20 @@ function clientToScreen(elem, point) {
 		left = point.left + box.left + scrollLeft - clientLeft;
 
 	return { top: top, left: left };
+}
+
+function getResourcePath(resource, type) {
+	switch (type) {
+		case 'image':
+			resource = resource.match(/(extension:\/\/)?(.+\.(?:png|jpe?g|gif|svg))\s*$/i);
+			break;
+		default:
+			resource = resource.match(/(extension:\/\/)?(.+)\s*$/i);
+	}
+
+	if (!resource) return '';
+	if (resource[1]) return browser.runtime.getURL(resource[2]);
+	return resource[0].trim();
 }
 
 

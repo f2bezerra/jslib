@@ -265,6 +265,11 @@
   font-style: italic;
 }
 
+.modal-dlg-content kbd {
+  background-color: #eeeeee;
+  color: #e91e63;
+}
+
 .modal-dlg-content a {
   text-decoration: none;
   color: #1168ac;
@@ -508,7 +513,7 @@ div.radio~div.radio:not(.vertical) {
 
 /*** BOTÃƒâ€¢ES ***/
 
-.btn {
+.cbtn {
   display: inline-block;
   padding: 6px 12px;
   margin-bottom: 0;
@@ -527,69 +532,69 @@ div.radio~div.radio:not(.vertical) {
   user-select: none;
   background-image: none;
   border: 1px solid transparent;
-  border-radius: 100px;
+  border-radius: 4px;
   margin: 0 4px;
 }
 
-.btn::-moz-focus-inner {
+.cbtn::-moz-focus-inner {
   border: 0;
 }
 
-.btn:active:focus,
-.btn:focus {
+.cbtn:active:focus,
+.cbtn:focus {
   outline: 0;
   /* outline: 5px auto -webkit-focus-ring-color; */
   /* outline-offset: -2px; */
 }
 
-.btn-default {
-  color: #333;
-  background-color: #e6e6e6;
-  border-color: #adadad;
+.cbtn-default {
+  color: #fff;
+  background-color: #6c757d;
+  border-color: #6c757d;
 }
 
-.btn-default:hover {
+.cbtn-default:hover {
+  color: #fff;
+  background-color: #5c636a;
+  border-color: #565e64;
+}
+
+.cbtn-default:focus {
   color: #fff;
   background-color: #5d5d5d;
   border-color: transparent;
 }
 
-.btn-default:focus {
-  color: #fff;
-  background-color: #5d5d5d;
-  border-color: transparent;
-}
-
-.btn-confirm:hover {
+.cbtn-confirm:hover {
   color: #fff;
   background-color: #449d44;
   border-color: #398439;
 }
 
-.btn-confirm:focus {
+.cbtn-confirm:focus {
   color: #fff;
   background-color: #449d44;
   border-color: #255625;
 }
 
-.btn-cancel:hover {
+.cbtn-cancel:hover {
   color: #fff;
   background-color: #c9302c;
   border-color: #ac2925;
 }
 
-.btn-cancel:focus {
+.cbtn-cancel:focus {
   color: #fff;
   background-color: #c9302c;
   border-color: #761c19;
 }
 
-.btn-group-dropdown {
+.cbtn-group-dropdown {
   position: relative;
   display: inline-block;
 }
 
-.btn-dropdown {
+.cbtn-dropdown {
   padding: 0;
   margin: auto;
   position: absolute;
@@ -605,12 +610,12 @@ div.radio~div.radio:not(.vertical) {
   /* background-position: center; */
 }
 
-.btn-dropdown:hover {
+.cbtn-dropdown:hover {
   border: .1em solid #008bff;
   background-color: #fff3 !important;
 }
 
-.btn-caret {
+.cbtn-caret {
   display: inline-block;
   width: 0;
   height: 0;
@@ -1616,19 +1621,19 @@ div.icon:active {
   animation: spin 1s infinite ease;
 }
 
-.btn-pulse-red {
+.cbtn-pulse-red {
   background-color: #e53935 !important;
 }
 
-.btn-pulse-red:hover {
+.cbtn-pulse-red:hover {
   background-color: #e76219 !important;
 }
 
-.btn-pulse:focus {
+.cbtn-pulse:focus {
   background-color: #1d7d74;
 }
 
-.btn-pulse {
+.cbtn-pulse {
   display: inline-block;
   color: #fff;
   position: relative;
@@ -1648,11 +1653,11 @@ div.icon:active {
   overflow: visible;
 }
 
-.btn-pulse:hover {
+.cbtn-pulse:hover {
   background-color: #26a69a;
 }
 
-.btn-pulse:before {
+.cbtn-pulse:before {
   content: '';
   display: block;
   position: absolute;
@@ -1668,12 +1673,12 @@ div.icon:active {
   transition: opacity .3s, transform .3s;
   /* @alternate */
   transition: opacity .3s, transform .3s, -webkit-transform .3s;
-  -webkit-animation: btn-pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
-  animation: btn-pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  -webkit-animation: cbtn-pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+  animation: cbtn-pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
   z-index: -1;
 }
 
-.btn-pulse i {
+.cbtn-pulse i {
   width: inherit;
   display: inline-block;
   text-align: center;
@@ -1682,7 +1687,7 @@ div.icon:active {
   line-height: 40px;
 }
 
-.btn-floating {
+.cbtn-floating {
   position: fixed;
   right: 20px;
   bottom: 20px;
@@ -1747,7 +1752,7 @@ div.icon:active {
   }
 }
 
-@-webkit-keyframes btn-pulse-animation {
+@-webkit-keyframes cbtn-pulse-animation {
   0% {
     opacity: 1;
     -webkit-transform: scale(1);
@@ -1767,7 +1772,7 @@ div.icon:active {
   }
 }
 
-@keyframes btn-pulse-animation {
+@keyframes cbtn-pulse-animation {
   0% {
     opacity: 1;
     -webkit-transform: scale(1);
