@@ -862,7 +862,7 @@ async function getAjaxContent(url, options) {
 
 /*** Retornar Promise de postagem de dados ***
 
-		form_url: formulário ou endereço da requisição :: <form> | <id> | <url>
+		form: formulário ou endereço da requisição :: <form> | <id> | <url>
 		options: opções da postagem :: {data, formId, url, fetchMethod, fetchParams, charset}
 			data: dados a serem postados ou função para preenchimento dos dados a serem postados :: <string> | <object> | function(html, postdata) 
 				html: html retornado pelo GET realizado através do form_url :: <string>
@@ -875,31 +875,30 @@ async function getAjaxContent(url, options) {
 		
 		return Promise
 */
-function postFormData(form_url, options) {
-	if (!form_url) return Promise.reject("Formulário ou URL não informados");
+async function postFormData(form, options) {
+	if (!form) throw new Error("Formulário ou URL não informado");
 
-	var form = form_url;
+	if (!options) throw new Error("Argumentos inválidos");
 
-	if (!options) return Promise.reject("Argumentos inválidos");
 	if (typeof options == "function" || (typeof options == "object" && !options.data && !options.fetchParams)) options = { data: options };
 
-	if (!options.data && !options.fetchParams) return Promise.reject("Dados nulos");
+	if (!options.data && !options.fetchParams) throw new Error("Dados inválidos");
 
 	let default_options = {
-		data: undefined,			// {dados} | function(data) para postar
+		data: undefined,		// {dados} | function(data) para postar
 		formId: undefined,		// identificador do formulário'
-		url: undefined,			// url diferente da definida no formulário
-		onlyFetch: false,		// apenas buscar
-		fetchMethod: "get",		// método padrão para busca quando informado uma url
+		redirectUrl: undefined,	// url diferente da definida no formulário
+		fetchMethod: "GET",		// método padrão para busca quando informado uma url
 		fetchParams: undefined,	// parâmetros para busca
-		charset: "iso-8859-1"
-	};	// iso-8859-1 | utf-8
+		charset: "iso-8859-1", 	// ISO-8859-1 | UTF-8
+		returnParams: undefined	// Parâmetros a serem retornados na resposta da chamada  	 
+	};
 
-	for (let prop in default_options) if (default_options.hasOwnProperty(prop) && default_options[prop] != undefined && options[prop] == undefined) options[prop] = default_options[prop];
+	options = Object.assign(default_options, options);
 
-	let is_url = (typeof form == "string" && Boolean(form.match(/^https?:\/\/.*\.(?:php|asp)[^'"]*/i)));
+	let isUrl = (typeof form == "string" && Boolean(form.match(/^(?:https?:\/\/)?[\w_.?=%&+-]+/i)));
 
-	let data_to_params = function (d) {
+	let paramsFromData = d => {
 		if (!d || typeof d == "string") return d;
 		let params = "";
 
@@ -919,69 +918,105 @@ function postFormData(form_url, options) {
 		return params;
 	};
 
-	let root;
+	let html, root;
 
-	return new Promise((resolve, reject) => {
-		if (is_url) {
-			let ajax_setting = { url: absoluteUrl(form.replace(/&amp;/g, "&")), method: "GET" };
-			root = ajax_setting.url.match(/(?:https?:\/\/)?[^\/]+(?:\/[^\/]+)*(?=\/)/i)[0];
+	if (isUrl) {
+		let ajax_setting = { url: absoluteUrl(form.replace(/&amp;/g, "&")), method: options.fetchMethod };
+		root = ajax_setting.url.match(/(?:https?:\/\/)?[^\/]+(?:\/[^\/]+)*(?=\/)/i)[0];
 
-			if (options.fetchMethod == "post") {
-				ajax_setting.method = "POST";
-				ajax_setting.data = data_to_params(options.fetchParams);
-			}
+		if (options.fetchMethod.toUpperCase() != "GET") ajax_setting.data = paramsFromData(options.fetchParams);
 
-			if (options.charset == "iso-8859-1") {
-				ajax_setting.contentType = `application/x-www-form-urlencoded;charset=${options.charset}`;
-				ajax_setting.beforeSend = jqXHR => jqXHR.overrideMimeType(`text/html;charset=${options.charset}`);
-			}
+		if (options.charset == "iso-8859-1") {
+			ajax_setting.contentType = `application/x-www-form-urlencoded;charset=${options.charset}`;
+			ajax_setting.beforeSend = jqXHR => jqXHR.overrideMimeType(`text/html;charset=${options.charset}`);
+		}
 
-			Promise.resolve($.ajax(ajax_setting)).then(resolve, reject);
+		html = await Promise.resolve($.ajax(ajax_setting));
+		if (!html) throw new Error(`Falha na busca do recurso '${ajax_setting.url}'`);
 
-		} else resolve(form);
-	}).then(html => {
+		form = options.formId ? $(html).find('#' + options.formId).first() : $(html).find('form').first();
+	} else form = $(form);
 
-		if (options.onlyFetch) return Promise.resolve(html);
+	if (!form.length) throw new Error("Formulário não encontrado");
 
-		if (is_url) form = options.formId ? $(html).find('#' + options.formId).get(0) || $(html).filter('#' + options.formId).get(0) : $(html).find('form').get(0) || $(html).filter('form').get(0);
-		else form = $(form).get(0);
-
-		if (!form) return Promise.reject({ html: html, message: "Formulário não encontrado" });
-
-		form = $(form);
-
-		let mount_params = async function () {
-			if (typeof options.data == "string") return Promise.resolve(options.data);
-
-			let postdata = {};
-			form.find('[type=hidden],textarea,select,input:checked,[type=submit]').each((index, input) => {
-				postdata[input.name] = $(input).val();
-			});
-
-			if (typeof options.data == "function") {
-				let result = options.data.constructor.name === "AsyncFunction" ? await options.data({ html: html, data: postdata }) : options.data({ html: html, data: postdata });
-				if (result === false) return Promise.reject("Cancelado");
-				if (result instanceof Promise) return result.then(r => { return r === false ? Promise.reject("Cancelado") : Promise.resolve(data_to_params(postdata)) });
-			} else {
-				for (let prop in options.data) if (options.data.hasOwnProperty(prop)) postdata[prop] = options.data[prop];
-			}
-
-			return data_to_params(postdata);
-		};
-
-		return mount_params().then(params => {
-			let url = options.url ? options.url : form.attr("action");
-			let ajax_setting = { url: absoluteUrl(root, url), method: "POST", data: params };
-			if (options.charset) {
-				ajax_setting.contentType = `application/x-www-form-urlencoded; charset=${options.charset.toUpperCase()}`;
-				ajax_setting.beforeSend = jqXHR => jqXHR.overrideMimeType(`text/html;charset=${options.charset}`);
-			}
-
-			return Promise.resolve($.ajax(ajax_setting));
-		});
-
+	let postData = {};
+	form.find('[type=hidden],textarea,select,input:checked,[type=submit]').each((index, input) => {
+		postData[input.name] = $(input).val();
 	});
+
+	if (typeof options.data == "function") {
+		options.data = options.data.constructor.name === "AsyncFunction" ? await options.data({ html: html ?? form.html(), data: postData }) : options.data({ html: html ?? form.html(), data: postData });
+		if (options.data instanceof Promise) options.data = await options.data.then(result => result).catch(e => new Error(e));
+		if (options.data === false) throw new Error("Cancelado");
+		if (options.data instanceof Error) throw options.data;
+	}
+
+	Object.assign(postData, options.data ?? {});
+
+	let url = options.redirectUrl ? options.redirectUrl : form.attr("action");
+	let ajax_setting = { url: absoluteUrl(root, url), method: "POST", data: paramsFromData(postData) };
+	if (options.charset) {
+		ajax_setting.contentType = `application/x-www-form-urlencoded; charset=${options.charset.toUpperCase()}`;
+		ajax_setting.beforeSend = jqXHR => jqXHR.overrideMimeType(`text/html;charset=${options.charset}`);
+	}
+
+	let response = await Promise.resolve($.ajax(ajax_setting));
+	if (options.returnParams) response = { params: options.returnParams, response: response };
+
+	return response;
 }
+
+async function fetchData(url, options) {
+	if (!url) throw new Error("URL não informada");
+
+	if (!options) options = {};
+
+	if (typeof options == "object" && !options.params) options = { params: options };
+
+	let default_options = {
+		method: "GET",			// método padrão para busca quando informado uma url
+		params: undefined,		// parâmetros para busca
+		charset: "iso-8859-1", 	// ISO-8859-1 | UTF-8
+		returnParams: undefined	// Parâmetros a serem retornados na resposta da chamada  	 
+	};
+
+	options = Object.assign(default_options, options);
+
+	let paramsFromData = d => {
+		if (!d || typeof d == "string") return d;
+		let params = "";
+
+		for (let prop in d) {
+			if (d.hasOwnProperty(prop)) {
+				if (d[prop] === false) continue;
+				params += (params ? "&" : "") + prop + "=";
+				if (d[prop]) {
+					if (typeof d[prop] == "string") d[prop] = d[prop].trim();
+
+					if (options.charset == "iso-8859-1") params += escape(d[prop]).replace(/%20/g, "+");
+					else params += decodeURIComponent(d[prop]).replace(/%20/g, "+");
+				}
+			}
+		}
+
+		return params;
+	};
+
+	let ajax_setting = { url: absoluteUrl(url.replace(/&amp;/g, "&")), method: options.method };
+	if (options.method.toUpperCase() != "GET") ajax_setting.data = paramsFromData(options.params);
+
+	if (options.charset == "iso-8859-1") {
+		ajax_setting.contentType = `application/x-www-form-urlencoded;charset=${options.charset}`;
+		ajax_setting.beforeSend = jqXHR => jqXHR.overrideMimeType(`text/html;charset=${options.charset}`);
+	}
+
+	let response = await Promise.resolve($.ajax(ajax_setting));
+
+	if (options.returnParams) response = { params: options.returnParams, response: response };
+
+	return response;
+}
+
 
 
 
@@ -1322,7 +1357,7 @@ function tooltipValidation(elem, message) {
 
 	if (tooltip = $(top.window.document).find('.tooltip').get(0)) tooltip.remove();
 
-	var $tp = $(`<div class="tooltip fade top tooltip-validation" role="tooltip">
+	var $tp = $(`<div class="tooltip fade top tooltip-validation" role="tooltip" style="z-index: 90107;">
 				<div class="tooltip-arrow"></div>
 				<div class="tooltip-inner"></div>
 			   </div>`);
