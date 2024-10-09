@@ -1,9 +1,9 @@
-﻿/************************************************/
-/*	Documento CSS								*/
-/*	Autor: Fábio Fernandes Bezerra				*/
-/************************************************/
-/*@charset "utf-8";*/
-
+﻿/**
+* @file Estilos aplicados pela biblioteca de funções comuns de uso geral
+* @author Fábio Fernandes Bezerra
+* @copyright f2bezerra 2024
+* @license MIT
+*/
 
 /*** GERAIS ***/
 [data-before]::before {

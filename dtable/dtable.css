@@ -1,32 +1,35 @@
-﻿/************************************************/	
-/*	Documento CSS								*/
-/*	Autor: Fábio Fernandes Bezerra				*/
-/************************************************/
+﻿/**
+* @file Estilos aplicáveis às tabela dinâmica
+* @author Fábio Fernandes Bezerra
+* @copyright f2bezerra 2024
+* @license MIT
+*/
 @charset "utf-8";
 
-.dtable-fixed-header{
-    width: 800px;
-    table-layout: fixed;
-    border-collapse: collapse;
+.dtable-fixed-header {
+  width: 800px;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
-.dtable-fixed-header tbody{
-  display:block;
+.dtable-fixed-header tbody {
+  display: block;
   width: 100%;
   overflow: auto;
   height: 600px;
 }
 
 .dtable-fixed-header thead tr {
-   display: block;
+  display: block;
 }
 
 .dtable-fixed-header thead {
   background: black;
-  color:#fff;
+  color: #fff;
 }
 
-.dtable-fixed-header th, .dtable-fixed-header td {
+.dtable-fixed-header th,
+.dtable-fixed-header td {
   padding: 5px;
   text-align: left;
   width: 600px;

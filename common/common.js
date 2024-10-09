@@ -1,10 +1,14 @@
+/**
+* @file Biblioteca de funções comuns de uso geral
+* @author Fábio Fernandes Bezerra
+* @copyright f2bezerra 2024
+* @license MIT
+*/
+
 "strict mode"
 
-// Definição de compatibilidade para o Chrome
-try {
-	var browser = browser || chrome;
-} catch (ex) {
-}
+/* Definição de compatibilidade para o Chrome */
+var browser = browser || chrome;
 
 
 /** Converter String para Date  */

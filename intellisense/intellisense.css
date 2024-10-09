@@ -1,9 +1,11 @@
-/************************************************/	
-/*	Documento CSS								*/
-/*	Autor: Fábio Fernandes Bezerra				*/
-/************************************************/
-@charset "utf-8";
+/**
+* @file Estilos aplicáveis aos intellisenses para editores web
+* @author Fábio Fernandes Bezerra
+* @copyright f2bezerra 2024
+* @license MIT
+*/
 
+@charset "utf-8";
 
 .intellisense-icon-template p::before {
 	content: "\00a0";
@@ -17,13 +19,13 @@
 }
 
 .intellisense-li-selected a {
-	background-color: #999!important;
+	background-color: #999 !important;
 }
 
 .intellisense-popup-list {
 	width: 150px;
 	height: auto;
-	max-height: 170px;	
+	max-height: 170px;
 	visibility: visible;
 	overflow: hidden;
 	background-color: #fff;
@@ -32,9 +34,9 @@
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
-	-moz-box-shadow: 0 0 3px rgba(0,0,0,.15);
-	-webkit-box-shadow: 0 0 3px rgba(0,0,0,.15);
-	box-shadow: 0 0 3px rgba(0,0,0,.15);
+	-moz-box-shadow: 0 0 3px rgba(0, 0, 0, .15);
+	-webkit-box-shadow: 0 0 3px rgba(0, 0, 0, .15);
+	box-shadow: 0 0 3px rgba(0, 0, 0, .15);
 	margin: 0;
 	padding: 0;
 	text-decoration: none;
@@ -43,7 +45,7 @@
 	-moz-box-sizing: content-box;
 	-webkit-box-sizing: content-box;
 	border-collapse: collapse;
-	font: normal normal normal 12px Arial,Helvetica,Tahoma,Verdana,Sans-Serif;
+	font: normal normal normal 12px Arial, Helvetica, Tahoma, Verdana, Sans-Serif;
 	color: #000;
 	text-align: left;
 	white-space: nowrap;
@@ -51,54 +53,56 @@
 }
 
 .intellisense-popup-list * {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    text-decoration: none;
-    width: auto;
-    height: auto;
-    vertical-align: baseline;
-    box-sizing: content-box;
-    -moz-box-sizing: content-box;
-    -webkit-box-sizing: content-box;
-    border-collapse: collapse;
-    font: normal normal normal 12px Arial,Helvetica,Tahoma,Verdana,Sans-Serif;
-    color: #000;
-    text-align: left;
-    white-space: nowrap;
-    cursor: auto;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	text-decoration: none;
+	width: auto;
+	height: auto;
+	vertical-align: baseline;
+	box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	border-collapse: collapse;
+	font: normal normal normal 12px Arial, Helvetica, Tahoma, Verdana, Sans-Serif;
+	color: #000;
+	text-align: left;
+	white-space: nowrap;
+	cursor: auto;
 }
 
 .intellisense-popup-panel {
 	overflow-y: auto;
-	overflow-x: hidden;	
+	overflow-x: hidden;
 }
 
 .intellisense-popup-block ul {
-    list-style-type: none;
-    margin: 3px;
-    padding: 0;
-    white-space: nowrap;
+	list-style-type: none;
+	margin: 3px;
+	padding: 0;
+	white-space: nowrap;
 }
 
 .intellisense-popup-block a {
-    padding: 3px 4px;
-    display: block;
-    border: 1px solid #fff;
-    color: inherit !important;
-    text-decoration: none;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    -moz-border-radius: 2px;
-    -webkit-border-radius: 2px;
-    border-radius: 2px;
+	padding: 3px 4px;
+	display: block;
+	border: 1px solid #fff;
+	color: inherit !important;
+	text-decoration: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	border-radius: 2px;
 }
 
-.intellisense-popup-block a:hover, .intellisense-popup-block a:focus, .intellisense-popup-block a:active {
-    border-color: #dedede;
-    background-color: #f2f2f2;
-    -moz-box-shadow: 0 0 2px rgba(0,0,0,.1) inset;
-    -webkit-box-shadow: 0 0 2px rgba(0,0,0,.1) inset;
-    box-shadow: 0 0 2px rgba(0,0,0,.1) inset;
+.intellisense-popup-block a:hover,
+.intellisense-popup-block a:focus,
+.intellisense-popup-block a:active {
+	border-color: #dedede;
+	background-color: #f2f2f2;
+	-moz-box-shadow: 0 0 2px rgba(0, 0, 0, .1) inset;
+	-webkit-box-shadow: 0 0 2px rgba(0, 0, 0, .1) inset;
+	box-shadow: 0 0 2px rgba(0, 0, 0, .1) inset;
 }
