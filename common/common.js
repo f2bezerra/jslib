@@ -948,6 +948,14 @@ async function postFormData(form, options) {
 		postData[input.name] = $(input).val();
 	});
 
+	if (typeof options.redirectUrl == "function") {
+		options.redirectUrl = options.redirectUrl.constructor.name === "AsyncFunction" ? await options.redirectUrl({ html: html ?? form.html(), redirectUrl: postData }) : options.redirectUrl({ html: html ?? form.html(), redirectUrl: postData });
+		if (options.redirectUrl instanceof Promise) options.redirectUrl = await options.redirectUrl.then(result => result).catch(e => new Error(e));
+		if (options.redirectUrl === false) throw new Error("Cancelado");
+		if (options.redirectUrl instanceof Error) throw options.redirectUrl;
+		if (typeof options.redirectUrl !== "string") throw new Error("Parâmetro inválido");
+	}
+
 	if (typeof options.data == "function") {
 		options.data = options.data.constructor.name === "AsyncFunction" ? await options.data({ html: html ?? form.html(), data: postData }) : options.data({ html: html ?? form.html(), data: postData });
 		if (options.data instanceof Promise) options.data = await options.data.then(result => result).catch(e => new Error(e));
