@@ -37,14 +37,15 @@
   font-size: 20px;
   font-weight: lighter;
   background-color: transparent;
-  color: #fff;
   border-radius: 0;
 }
 
-
 .wait-message-content * {
-  color: #fff;
   font-family: arial, verdana, helvetica, sans-serif;
+}
+
+.wait-message-dark * {
+  color: #fff;
 }
 
 .wait-message-content #wait-message {
@@ -1425,9 +1426,7 @@ div.icon:active {
   animation-delay: -0.15s;
 }
 
-
 .loader-track {
-  color: #ffffff;
   font-size: 48px;
   text-indent: -9999em;
   overflow: hidden;

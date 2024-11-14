@@ -1391,13 +1391,19 @@ function tooltipValidation(elem, message) {
 };
 
 
-
 /*** Exibir ou ocultar mensagem de processamento ***
 
 		msg: mensagem a ser exibida. se for null, oculta mensagem de processamento
 */
 function waitMessage(msg, options) {
-	var doc = window.top.document;
+	var doc;
+
+	try {
+		doc = window.top.document;
+	} catch (e) {
+		doc = document;
+	}
+
 	var container = doc.getElementById("wait-container");
 
 	if (msg) {
@@ -1406,24 +1412,28 @@ function waitMessage(msg, options) {
 
 		if (!container) {
 			if (!options) options = {};
-			let default_options = { loader: true };
 
-			for (let prop in default_options) if (default_options.hasOwnProperty(prop) && default_options[prop] !== undefined && options[prop] == undefined) options[prop] = default_options[prop];
+			let default_options = {
+				loader: true,
+				dark: true,
+				compact: false,
+				tag: null
+			};
 
+			options = Object.assign(default_options, options);
 
 			container = doc.createElement("div");
 			container.id = "wait-container";
 			container.className = "modal-container";
 
 			var bkgrd = doc.createElement("div");
-			bkgrd.className = options.mode === "compact" ? "modal-dlg-background" : "modal-dark-background";
+			bkgrd.className = !options.dark || options.compact ? "modal-dlg-background" : "modal-dark-background";
 
 			var content = doc.createElement("div");
 			content.className = "wait-message-content";
+			if (options.dark) content.classList.add('wait-message-dark');
 
-
-
-			if (options.mode === "compact") {
+			if (options.compact) {
 				$(content).html(`<div class="wait-message-dlg"><div id='wait-message'>${msg}</div><div class="loader"><div class='loader-ellipsis'>Loadind...</div></div></div>`);
 				if (options.tag) {
 					options.tag = options.tag.replace(/\\n/g, "\n");
