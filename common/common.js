@@ -1538,7 +1538,13 @@ function openDlg(dlg, options) {
 
 	for (let prop in default_options) if (default_options.hasOwnProperty(prop) && default_options[prop] != undefined && options[prop] == undefined) options[prop] = default_options[prop];
 
-	var doc = window.top.document;
+	var doc;
+
+	try {
+		doc = window.top.document;
+	} catch (e) {
+		doc = document;
+	}
 
 	if (typeof dlg == "string") dlg = doc.getElementById(dlg);
 	if (!dlg) return;
@@ -1684,7 +1690,7 @@ function openDlg(dlg, options) {
 		else dlg.resolve(action);
 
 		//remover anotações de tela 
-		$(top.window.document).find('.tooltip').remove();
+		$(doc).find('.tooltip').remove();
 		$(dlg).find('.form-control-invalid').removeClass('form-control-invalid');
 
 		//ocultar dialig e container
@@ -2018,38 +2024,39 @@ function stringToDlgOptions(settings) {
 
 
 
-/*** Exibir mensagem popup ***
-
-		msg: mensagem a ser exibida :: <string>
-		title: título da janela. Padrão undefined :: <string>
-		options: opções da janela popup :: <openDlg>
-		
-		return Promise
-*/
+/**
+ * Exibir mensagem
+ * @param {String} msg Mensagem a ser exibida 
+ * @param {String} [title] Título da mensagem a ser exibida  
+ * @param {Object} [options] Opções de personalização de exibição da mensagem 
+ * @returns {Promise}
+ */
 function popupMessage(msg, title, options) {
-	if (!msg) return;
+	if (!msg) return Promise.reject();
 
 	if (typeof title == "object") {
 		options = title;
 		title = undefined;
-	} else if (typeof title == "string" && !options) {
-		options = stringToDlgOptions(title);
-		title = undefined;
 	}
 
-	if (!options) options = {};
-	else if (typeof options == "string") options = stringToDlgOptions(options);
-
 	var default_options = {
-		title: title ? title : "Mensagem", 	// título do popup
-		buttons: "OK", 					// rótulo do botão do popup
+		title: title ? title : "Mensagem",	// título da mensagem 
+		buttons: "OK", 						// botões do popup
 		buttonsAlign: "center", 			// alinhamento dos botões
-		textAlign: "center"
-	};			// alinhamento da mensagem de texto
+		textAlign: "center"					// alinhamento da mensagem 
+	};
 
-	for (let prop in default_options) if (default_options.hasOwnProperty(prop) && default_options[prop] != undefined && options[prop] == undefined) options[prop] = default_options[prop];
+	if (typeof options == "string") options = stringToDlgOptions(options);
 
-	var doc = window.top.document;
+	options = Object.assign(default_options, options ?? {});
+	var doc;
+
+	try {
+		doc = window.top.document;
+	} catch (e) {
+		doc = document;
+	}
+
 	var dlg = doc.createElement("div");
 
 	$(dlg).css("text-align", "center");
@@ -2063,39 +2070,107 @@ function popupMessage(msg, title, options) {
 	return openDlg(dlg, options);
 }
 
-
-
-/*** Exibir mensagem de erro ***
-
-		msg: mensagem a ser exibida :: <string>
-		title: título da janela. Padrão "Erro" :: <string>
-		options: opções da janela popup :: <=openDlg>
-		
-		return Promise
-*/
+/**
+ * Exibir mensagem de falha 
+ * @param {String} msg Mensagem a ser exibida 
+ * @param {String} [title] Título da mensagem a ser exibida  
+ * @param {Object} [options] Opções de personalização da exibição da mensagem 
+ * @deprecated Usar failMessage()
+ * @returns {Promise}
+ */
 function errorMessage(msg, title, options) {
-	if (!msg) return;
+	return failMessage(msg, title, options);
+}
+
+
+/**
+ * Exibir mensagem de falha 
+ * @param {String} msg Mensagem a ser exibida 
+ * @param {String} [title] Título da mensagem a ser exibida  
+ * @param {Object} [options] Opções de personalização da exibição da mensagem 
+ * @returns {Promise}
+ */
+function failMessage(msg, title, options) {
+	if (!msg) return Promise.reject();
 
 	if (typeof title == "object") {
 		options = title;
 		title = undefined;
-	} else if (typeof title == "string" && !options) {
-		options = stringToDlgOptions(title);
-		title = undefined;
 	}
-
-	if (!options) options = {};
-	else if (typeof options == "string") options = stringToDlgOptions(options);
 
 	var default_options = {
 		title: title ? title : "Erro", 		// título da mensagem de erro
-		icon: "modal-dlg-icon-error",	// ícone do popup 
-		buttons: "OK", 					// botões do popup
+		icon: "modal-dlg-icon-error",		// ícone do popup 
+		buttons: "OK", 						// botões do popup
 		buttonsAlign: "center", 			// alinhamento dos botões
-		textAlign: "center"
-	};			// alinhamento da mensagem de erro
+		textAlign: "center"					// alinhamento da mensagem de erro
+	};
 
-	for (let prop in default_options) if (default_options.hasOwnProperty(prop) && default_options[prop] != undefined && options[prop] == undefined) options[prop] = default_options[prop];
+	if (typeof options == "string") options = stringToDlgOptions(options);
+
+	options = Object.assign(default_options, options ?? {});
+
+	return popupMessage(msg, title, options);
+}
+
+/**
+ * Exibir mensagem de sucesso 
+ * @param {String} msg Mensagem a ser exibida 
+ * @param {String} [title] Título da mensagem a ser exibida  
+ * @param {Object} [options] Opções de personalização da exibição da mensagem 
+ * @returns {Promise}
+ */
+function successMessage(msg, title, options) {
+	if (!msg) return Promise.reject();
+
+	if (typeof title == "object") {
+		options = title;
+		title = undefined;
+	}
+
+	var default_options = {
+		title: title ? title : "Sucesso", 	// título da mensagem 
+		icon: "modal-dlg-icon-success",		// ícone do popup 
+		buttons: "OK", 						// botões do popup
+		buttonsAlign: "center", 			// alinhamento dos botões
+		textAlign: "center"					// alinhamento da mensagem 
+	};
+
+	if (typeof options == "string") options = stringToDlgOptions(options);
+
+	options = Object.assign(default_options, options ?? {});
+
+	return popupMessage(msg, title, options);
+}
+
+
+/**
+ * Exibir mensagem de sucesso 
+ * @param {String} msg Mensagem a ser exibida 
+ * @param {String} [title] Título da mensagem a ser exibida  
+ * @param {Object} [options] Opções de personalização da exibição da mensagem 
+ * @returns {Promise}
+ */
+function warningMessage(msg, title, options) {
+	if (!msg) return Promise.reject();
+
+	if (typeof title == "object") {
+		options = title;
+		title = undefined;
+	}
+
+	var default_options = {
+		title: title ? title : "Atenção", 	// título da mensagem 
+		icon: "modal-dlg-icon-warning",		// ícone do popup 
+		buttons: "OK", 						// botões do popup
+		buttonsAlign: "center", 			// alinhamento dos botões
+		textAlign: "center"					// alinhamento da mensagem 
+	};
+
+	if (typeof options == "string") options = stringToDlgOptions(options);
+
+	options = Object.assign(default_options, options ?? {});
+
 	return popupMessage(msg, title, options);
 }
 
