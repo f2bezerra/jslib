@@ -1,0 +1,158 @@
+﻿<html>
+
+<head>
+	<title>Exemplos de uso das funcionalidaes da biblioteca</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+	<style>
+		div.test {
+			padding: 8px;
+		}
+
+		div.view {
+			border: 1px solid silver;
+			padding: 8px;
+			height: calc(100% - 30px);
+		}
+
+		span.inline-button {
+			font-size: 22px;
+			display: inline-block;
+			background-color: #009de4;
+			margin-left: 8px;
+			width: 24px;
+			height: 24px;
+			text-align: center;
+			line-height: 24px;
+			color: white;
+			cursor: pointer;
+			border: 1px solid #00BCD4;
+		}
+	</style>
+
+	<link href="../common/common-new.css">
+	<script src="../common/common-new.js"></script>
+	<script src="features.js"></script>
+
+	<script>
+		function selectFuncionalidade() {
+			resetFeature();
+			runFeature();
+		}
+
+		function cleanCode(code) {
+			code = (code ?? "").replace(/\t/g, "    ");
+
+			let ident = code.match(/^([ \t]+)\S/m);
+			ident = ident ? ident[1].length : 0;
+
+			if (ident) {
+				let regex = new RegExp(`^[ \\t]\{${ident}\}`, 'mg');
+				code = code.replace(regex, "");
+			}
+
+			return code.replace(/^\s*\n|\s*$/g, "");
+		}
+
+		function resetFeature() {
+			var selFuncionalidade = document.getElementById("selFuncionalidade");
+			var featureName = selFuncionalidade.value;
+
+			var txtInput = document.getElementById('txtInput');
+			txtInput.value = "";
+
+			var txtOutput = document.getElementById('txtOutput');
+			txtOutput.value = "";
+
+			var divElementosContainer = document.getElementById('divElementosContainer');
+			divElementosContainer.style.display = 'none';
+
+			if (!featureName) return;
+
+			var feature = new classMapFeatures[featureName].cls();
+
+			txtInput.value = cleanCode(feature.code);
+			let html = cleanCode(feature.elements);
+
+			document.getElementById("divHtml").innerText = html;
+			document.getElementById("divElementos").innerHTML = html;
+			divElementosContainer.style.display = html ? 'flex' : 'none';
+		}
+
+		function runFeature() {
+			var selFuncionalidade = document.getElementById("selFuncionalidade");
+			var featureName = selFuncionalidade.value;
+
+			if (!featureName) return;
+			var feature = new classMapFeatures[featureName].cls();
+
+			var txtInput = document.getElementById('txtInput');
+			var txtOutput = document.getElementById('txtOutput');
+
+			try {
+				txtOutput.value = feature.run(txtInput.value);
+			} catch (e) {
+				txtOutput.value = e;
+			}
+
+		}
+
+	</script>
+
+</head>
+
+<body>
+	<h3>Teste de Biblioteca</h3>
+
+	<div class="test">
+		<label>Funcionalidade:</label>
+		<select id="selFuncionalidade" onchange="selectFuncionalidade()">
+			<option value="">Selecione uma funcionalidade</option>
+		</select>
+	</div>
+	<div class="test">
+		<label>Entrada:</label><span class="inline-button" title="Executar" onclick="runFeature()">&#10148;</span><span
+			class="inline-button" title="Reiniciar" onclick="selectFuncionalidade()">&#8634;</span>
+		<textarea id="txtInput" rows="15" style="width: 100%;font-family: monospace;padding: 4px;font-size: 0.9em;"
+			spellcheck="false"></textarea>
+	</div>
+	<div id="divElementosContainer" class="test" style="width: 100%; column-gap: 10px;">
+		<div style="width: 50%; ">
+			<label>HTML:</label>
+			<div id="divHtml" class="view"
+				style="width: 100%;font-family: monospace;white-space: break-spaces;font-size: 0.9em;"></div>
+		</div>
+		<div style="width: 50%;">
+			<label>Visualização:</label>
+			<div id="divElementos" class="view" style="width: 100%;"></div>
+		</div>
+	</div>
+
+	<div class="test">
+		<label>Saída:</label>
+		<textarea id="txtOutput" rows="10" style="width: 100%;;font-family: monospace;padding: 4px;font-size: 0.9em;"
+			spellcheck="false"></textarea>
+	</div>
+</body>
+
+<script>
+	(function () {
+		resetFeature();
+		let selFuncionalidade = document.getElementById('selFuncionalidade');
+		for (const [key, item] of Object.entries(classMapFeatures)) {
+
+			let option = document.createElement('option');
+			option.value = key;
+			option.text = item.caption;
+
+			selFuncionalidade.appendChild(option);
+
+		}
+	})();
+</script>
+
+</html>
