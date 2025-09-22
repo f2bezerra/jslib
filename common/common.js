@@ -2888,7 +2888,7 @@ function openFormDlg(fields, title, options, validation) {
 
 
 
-			if (f.type == 'text' && f.icons) {
+			if ((f.type == 'text' || f.type == 'static') && f.icons) {
 				let container = document.createElement('div');
 				container.classList.add("form-control-iconed");
 				$divf.append(container);
