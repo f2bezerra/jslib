@@ -811,6 +811,12 @@ input.form-control::-moz-focus-inner {
   cursor: pointer;
 }
 
+select.form-control {
+  -webkit-appearance: auto !important;
+  -moz-appearance: auto !important;
+  appearance: auto !important;
+}
+
 
 
 
