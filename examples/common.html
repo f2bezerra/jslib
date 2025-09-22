@@ -255,6 +255,7 @@
 			$('#btnForm').click(async function (e) {
 				var campos = [];
 
+				let icon_edit = '<div class="icon inner icon-edit "></div>';
 				let icon_search = '<span><svg viewBox="0 0 24 24" style="width:24px;height:24px;"><path fill="currentColor" d="M15.009 13.805h-.636l-.22-.219a5.184 5.184 0 0 0 1.256-3.386 5.207 5.207 0 1 0-5.207 5.208 5.183 5.183 0 0 0 3.385-1.255l.221.22v.635l4.004 3.999 1.194-1.195-3.997-4.007zm-4.808 0a3.605 3.605 0 1 1 0-7.21 3.605 3.605 0 0 1 0 7.21z"></path></svg></span>';
 				let icon_down = '<span><svg viewBox="0 0 19 20" style="width:12px;height:12px;"><path fill="currentColor" d="m3.8 6.7 5.7 5.7 5.7-5.7 1.6 1.6-7.3 7.2-7.3-7.2 1.6-1.6z"></path></svg></span>';
 
@@ -262,12 +263,12 @@
 					id: 'nome',
 					label: 'Nome',
 					type: 'static',
-					value: '',
+					value: 'Item4',
 					dropdown: {
 						button: true,
 						source: async function () {
-							var delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-							await delay(3000);
+							// var delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+							// await delay(3000);
 
 							let list = [{ name: 'Item1' }, { name: 'Item2' }, { name: 'Item3' }, { name: 'Item4' }, { name: 'Item5' }, { name: 'Item6' }, { name: 'Item7' }, { name: 'Item8' }, { name: 'Item9' }, { name: 'Item10' }];
 							let ts = function () { return this.name };
@@ -280,12 +281,14 @@
 						},
 						cache: true,
 						max: 7
-					}
+					},
+
+					icons: [{icon: icon_edit, title: 'Pesquisar conteúdo', onclick: e => {alert('Pesquisar ' + e.inputs.search.value + '...');}}]
 				});
 
-				// campos.push({id: 'search', label: 'Pesquisar', type: 'text', icons: [{icon: icon_search, title: 'Pesquisar conteúdo', callback: e => {
-				// 	alert('Pesquisar ' + e.inputs.search.value + '...');
-				// }}]});
+				campos.push({id: 'search', label: 'Pesquisar', type: 'text', icons: [{icon: icon_search, title: 'Pesquisar conteúdo', onclick: e => {
+					alert('Pesquisar ' + e.inputs.search.value + '...');
+				}}]});
 
 				// campos.push({nest: true, 
 				// 			 label: "Nome", 
@@ -339,6 +342,9 @@
 				var grupo = { group: "Informações", fields: [] };
 				grupo.fields.push({ id: "data_cadastro", type: "date", label: "Data de cadastro", required: true });
 				grupo.fields.push({ id: "departamento", type: "select", label: "Departamento", items: "V=Vendas,R=Recursos Humanos,E=Expedição,C=Comercial", value: "E" });
+
+				var seletor = { id: "seletor", type: "select", label: "Seletor", items: "A=Item A,B=Item B,C=Item C", value: "A" };
+				grupo.fields.push(seletor);
 
 				campos.push(grupo);
 
